@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/maaw77/crmsrvg/internal/crm"
 
 func main() {
-	fmt.Println("Hello")
+	crm.Run()
 }

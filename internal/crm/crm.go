@@ -1,8 +1,9 @@
-package main
+package crm
 
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,13 +13,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func HelloHandeler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>%s</h1>", "Hello boss!")
+
+}
+
+// Run runs the server with the specified parameters.
 func Run() {
 	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+	flag.DurationVar(&wait, "gt", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.Parse()
+	log.Println("Graceful timeout", wait)
 
 	r := mux.NewRouter()
 	// Add your routes as needed
+	r.HandleFunc("/", HelloHandeler)
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",
@@ -54,5 +63,5 @@ func Run() {
 	// <-ctx.Done() if your application should wait for other services
 	// to finalize based on context cancellation.
 	log.Println("shutting down")
-	os.Exit(0)
+	// os.Exit(0)
 }
