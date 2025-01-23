@@ -2,13 +2,11 @@ package crm
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/gorilla/mux"
 
@@ -21,22 +19,20 @@ func HelloHandeler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Run runs the server with the specified parameters.
-func Run() {
-	var wait time.Duration
+func Run(pathConfig string) {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-
-	flag.DurationVar(&wait, "gt", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
-	flag.Parse()
-	log.Println("Graceful timeout", wait)
+	log.Println(pathConfig)
 
 	r := mux.NewRouter()
 	// Add your routes as needed
 	r.HandleFunc("/", HelloHandeler)
 
-	srv := config.InitConfigServer()
+	srv, wait := config.InitConfigServer(pathConfig)
 	srv.Handler = r
-	log.Println(srv)
+	log.Printf("srv = %v", srv)
+	log.Printf("wait = %s\n", wait)
 
+	log.Printf("Starting the server with the TCP address = %s\n", srv.Addr)
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
@@ -53,6 +49,6 @@ func Run() {
 	defer cancel()
 	srv.Shutdown(ctx)
 
-	log.Println("shutdown")
+	log.Println("The server is shutting down")
 	// os.Exit(0)
 }
