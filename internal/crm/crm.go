@@ -2,21 +2,15 @@ package crm
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 
 	"github.com/gorilla/mux"
 
 	"github.com/maaw77/crmsrvg/config"
+	"github.com/maaw77/crmsrvg/internal/handlers/v1"
 )
-
-func HelloHandeler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>%s</h1>", "Hello Hugo boss!")
-
-}
 
 // Run runs the server with the specified parameters.
 func Run(pathConfig string) {
@@ -25,7 +19,8 @@ func Run(pathConfig string) {
 
 	r := mux.NewRouter()
 	// Add your routes as needed
-	r.HandleFunc("/", HelloHandeler)
+	// r.HandleFunc("/", HelloHandeler)
+	handlers.RegHanlders(r)
 
 	srv, wait := config.InitConfigServer(pathConfig)
 	srv.Handler = r
