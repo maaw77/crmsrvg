@@ -27,7 +27,7 @@ func Run(pathConfig string) {
 	log.Printf("srv = %v", srv)
 	log.Printf("wait = %s\n", wait)
 
-	log.Printf("Starting the server with the TCP address = %s\n", srv.Addr)
+	log.Printf("starting the server with the TCP address = %s\n", srv.Addr)
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
@@ -44,6 +44,6 @@ func Run(pathConfig string) {
 	defer cancel()
 	srv.Shutdown(ctx)
 
-	log.Println("The server is shutting down")
+	log.Println("the server is shutting down")
 	// os.Exit(0)
 }
