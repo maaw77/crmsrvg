@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,16 +23,7 @@ import (
 //     status: str  # Zagruzgen
 //     been_changed: bool   # table_color = '#f7fcc5' = Tru
 //
-//  [{"dt_receiving": "2024-06-01",
-// "dt_crch": "",
-// "site": "SITE_1",
-// "income_kg": 26442.70,
-// "operator": "OPERATOR_1",
-// "provider": "PROVIDER_1",
-// "contractor": "CONTRACTOR_1",
-// "license_plate": "A902RUS",
-// "status": "Uploaded",
-// "been_changed": false},
+//  [{"dt_receiving": "2024-06-01", "dt_crch": "", "site": "SITE_1", "income_kg": 26442.70, "operator": "OPERATOR_1", "provider": "PROVIDER_1", "contractor": "CONTRACTOR_1", "license_plate": "A902RUS", "status": "Uploaded", "been_changed": false},
 // {"dt_receiving": "2024-06-01",
 // "dt_crch": "",
 // "site": "SITE_2",
@@ -44,19 +36,18 @@ import (
 // "been_changed": false},
 // ...]
 
-// type GsmTableEntry struct {
-// 	dt_receiving //     dt_receiving: datetime.date | str  # Data priemki
-// 	// dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
-// 	Site string `json:"site"` //     site: str  # Uchastok
-// 	//     income_kg: float   # Prinyato v kg
-// 	//     operator: str  # Operator
-// 	//     provider: str  # Postavshikdt_receiving
-// 	//     contractor: str  # Perevozshik
-// 	//     license_plate: str   # GOS nomer
-// 	//     status: str  # Zagruzgen
-// 	//     been_changed: bool   # table_color = '#f7fcc5' = T
-
-// }
+type GsmTableEntry struct {
+	Dt_receiving  time.Time `json:"dt_receiving"`      //     dt_receiving: datetime.date | str  # Data priemki
+	Dt_crch       time.Time `json:"dt_crch,omitempty"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
+	Site          string    `json:"site"`              //     site: str  # Uchastok
+	Income_kg     float64   `json:"income_kg"`         //     income_kg: float   # Prinyato v kg
+	Operator      string    `json:"operator"`          //     operator: str  # Operator
+	Provider      string    `json:"provider"`          //     provider: str  # Postavshikdt_receiving
+	Contractor    string    `json:"contractor"`        //     contractor: str  # Perevozshik
+	License_plate string    `json:"license_plate"`     //     license_plate: str   # GOS nomer
+	Status        string    `json:"status"`            //     status: str  # Zagruzgen
+	Been_changed  bool      `json:"been_changed"`      //     been_changed: bool   # table_color = '#f7fcc5' = T
+}
 
 type gsmTable struct {
 	db string
@@ -108,7 +99,22 @@ func (c *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "<h1>date = %s</h1>\n", dt)
+	// fmt.Fprintf(w, "<h1>date = %s</h1>\n", dt)
+
+	gsmEntry := GsmTableEntry{
+		Dt_receiving: dt, //time.Date(2024, time.December, 15, 0, 0, 0, 0, time.UTC),
+		// Dt_crch : "",
+		Site:          "SITE_2",
+		Income_kg:     562.20,
+		Operator:      "OPERATOR_2",
+		Provider:      "PROVIDER_2",
+		Contractor:    "CONTRACTOR_2",
+		License_plate: "A342RUS",
+		Status:        "Uploaded",
+		Been_changed:  false,
+	}
+	encod := json.NewEncoder(w)
+	encod.Encode(&gsmEntry)
 }
 
 // newGsmTable() allocates and returns a new gsmTable.
@@ -136,6 +142,7 @@ func methodNotAllowed(w http.ResponseWriter, r *http.Request) {
 
 	body := fmt.Sprintf(`{"details": "%s is NOT supported"}`, r.Method)
 	fmt.Fprintf(w, "%s", body)
+
 }
 
 // RegHanlders registers handlers according to their URLs.
