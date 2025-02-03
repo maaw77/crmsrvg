@@ -53,16 +53,16 @@ type gsmTable struct {
 	db string
 }
 
-func (c *gsmTable) helloHandeler(w http.ResponseWriter, r *http.Request) {
+func (g *gsmTable) helloHandeler(w http.ResponseWriter, r *http.Request) {
 	log.Println("helloHandler Serving:", r.URL.Path, "from", r.Host)
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "<h1>%s</h1>", c.db)
+	fmt.Fprintf(w, "<h1>%s</h1>", g.db)
 
 }
 
 // getEtryGsm receives an entry with a specified ID from the GSM table
-func (c *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
+func (g *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
 	id, ok := mux.Vars(r)["id"]
@@ -77,7 +77,7 @@ func (c *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 }
 
 // getEtryGsm receives an entry with a specified date from the GSM table
-func (c *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
+func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
 	dateEntry, ok := mux.Vars(r)["date"]
@@ -87,11 +87,11 @@ func (c *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	dt, err := time.Parse(time.DateOnly, dateEntry)
 	if err != nil {
 		log.Println(err)
-
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		body := fmt.Sprintf(`{"details": "%s"}`, err)
 		fmt.Fprintf(w, "%s", body)
@@ -115,6 +115,26 @@ func (c *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	}
 	encod := json.NewEncoder(w)
 	encod.Encode(&gsmEntry)
+}
+
+// addEntryGsm adds an entry to the GSM table
+func (g *gsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
+	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
+
+	var gsmEntry GsmTableEntry
+	dec := json.NewDecoder(r.Body)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := dec.Decode(&gsmEntry); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		body := fmt.Sprintf(`{"details": "%s"}`, err)
+		fmt.Fprintf(w, "%s", body)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", gsmEntry)
 }
 
 // newGsmTable() allocates and returns a new gsmTable.
@@ -146,17 +166,19 @@ func methodNotAllowed(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegHanlders registers handlers according to their URLs.
-func RegHanlders(r *mux.Router) {
+func RegHanlders(rMux *mux.Router) {
 	log.Println("Starting registration of URLs and handlers")
 
-	r.NotFoundHandler = http.HandlerFunc(defaultHandler)
-	r.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowed)
+	rMux.NotFoundHandler = http.HandlerFunc(defaultHandler)
+	rMux.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowed)
+
 	gsmT := newGsmTable()
 
-	apiR := r.PathPrefix("/api/v1").Subrouter()
+	apiR := rMux.PathPrefix("/api/v1").Subrouter()
 
 	gsmR := apiR.PathPrefix("/gsm_table").Subrouter()
 	gsmR.HandleFunc("/", gsmT.helloHandeler).Methods("GET")
+	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
 	gsmR.HandleFunc("/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
 	gsmR.HandleFunc("/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods("GET")
 
