@@ -18,6 +18,7 @@ func Run(pathConfig string) {
 	log.Println(pathConfig)
 
 	r := mux.NewRouter()
+	// r.StrictSlash(true)
 	// Add your routes as needed
 	// r.HandleFunc("/", HelloHandeler)
 	handlers.RegHanlders(r)
