@@ -1,0 +1,178 @@
+basePath: /api/v1
+consumes:
+    - application/json
+definitions:
+    gsmTableEntry:
+        description: GsmTableEntry defines the structure for the entry in the GSM table
+        properties:
+            been_changed:
+                description: |-
+                    The status of the fuel intake record in the database (changed or not)
+                    in: body
+                example: false
+                type: boolean
+                x-go-name: Been_changed
+            contractor:
+                description: |-
+                    Name of the fuel carrier
+                    in: body
+                example: Some Name
+                type: string
+                x-go-name: Contractor
+            dt_crch:
+                description: |-
+                    Fuel receiving  date
+                    in: body
+                example: "2026-01-02"
+                type: string
+                x-go-name: Dt_crch
+            dt_receiving:
+                description: |-
+                    Fuel receiving date
+                    in: body
+                example: "2026-01-02"
+                type: string
+                x-go-name: Dt_receiving
+            income_kg:
+                description: |-
+                    The amount of fuel received at the warehouse in kilograms
+                    in: body
+                example: 362.2
+                format: double
+                type: number
+                x-go-name: Income_kg
+            license_plate:
+                description: |-
+                    The state number of the transport that delivered the fuel
+                    in: body
+                example: A902RUS
+                type: string
+                x-go-name: License_plate
+            operator:
+                description: |-
+                    Last name of the operator who took the fuel to the warehouse
+                    in: body
+                example: Some Last name
+                type: string
+                x-go-name: Operator
+            provider:
+                description: |-
+                    Name of the fuel provider
+                    in: body
+                example: Some Name
+                type: string
+                x-go-name: Provider
+            site:
+                description: |-
+                    Name of the mining site
+                    in: body
+                example: Some Name
+                type: string
+                x-go-name: Site
+            status:
+                description: |-
+                    Fuel loading status
+                    in: body
+                example: Uploaded
+                type: string
+                x-go-name: Status
+        required:
+            - dt_receiving
+            - site
+            - income_kg
+            - operator
+            - provider
+            - contractor
+            - license_plate
+            - status
+            - been_changed
+        type: object
+        x-go-name: GsmTableEntry
+        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
+info:
+    description: Documentation for REST API
+    title: for the CRM Server
+    version: 1.0.0
+paths:
+    /:
+        post:
+            description: Works with all HTTP methods
+            operationId: defaultHandler
+            responses:
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            summary: defaultHandler for everything that is not a match.
+    /*:
+        get:
+            description: methodNotAllowed for endpoints used with incorrect HTTP request method
+            operationId: methodNotAllowed
+            responses:
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+    /gsm_table:
+        post:
+            description: addEntryGsm adds an entry to the GSM table
+            operationId: gsmTableEntry
+            responses:
+                "200":
+                    description: gsmTableEntry
+                    schema:
+                        $ref: '#/definitions/gsmTableEntry'
+                "400":
+                    $ref: '#/responses/idResponse'
+            tags:
+                - addEntryGsm
+    /gsm_table/date/{date}:
+        get:
+            description: getEntryGsm retrieves an entry with a specified date from the GSM table
+            operationId: dateParam
+            parameters:
+                - description: Fuel receiving date
+                  in: path
+                  name: date
+                  required: true
+                  type: string
+                  x-go-name: Date
+            responses:
+                "200":
+                    description: gsmTableEntry
+                    schema:
+                        $ref: '#/definitions/gsmTableEntry'
+                "400":
+                    $ref: '#/responses/ErrorResponse'
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            tags:
+                - getEtryGsm
+    /gsm_table/id/{id}:
+        get:
+            description: getEntryGsm retrieves an entry with a specified ID from the GSM table
+            operationId: idParam
+            parameters:
+                - description: The entry id
+                  format: int64
+                  in: path
+                  minimum: 1
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    description: gsmTableEntry
+                    schema:
+                        $ref: '#/definitions/gsmTableEntry'
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            tags:
+                - getEntryGsm
+produces:
+    - application/json
+responses:
+    ErrorResponse:
+        description: ErrorResponse represents the details of the error message.
+    idResponse:
+        description: ""
+schemes:
+    - http
+swagger: "2.0"

@@ -1,0 +1,168 @@
+basePath: /api/v1
+consumes:
+    - application/json
+definitions:
+    GsmTableEntry:
+        description: GsmTableEntry defines the structure for the entry in the GSM table
+        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
+info:
+    description: Documentation for REST API
+    title: for the CRM Server
+    version: 1.0.0
+paths:
+    /:
+        post:
+            description: Works with all HTTP methods
+            operationId: defaultHandler
+            responses:
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            summary: defaultHandler for everything that is not a match.
+    /*:
+        get:
+            description: methodNotAllowed for endpoints used with incorrect HTTP request method
+            operationId: methodNotAllowed
+            responses:
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+    /gsm_table:
+        post:
+            description: addEntryGsm adds an entry to the GSM table
+            operationId: gsmTableEntry
+            parameters:
+                - description: Fuel receiving date
+                  example: "2026-01-02"
+                  in: body
+                  name: dt_receiving
+                  required: true
+                  schema: {}
+                  x-go-name: Dt_receiving
+                - description: Fuel receiving  date
+                  example: "2026-01-02"
+                  in: body
+                  name: dt_crch
+                  schema: {}
+                  x-go-name: Dt_crch
+                - description: Name of the mining site
+                  example: Some Name
+                  in: body
+                  name: site
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: Site
+                - description: The amount of fuel received at the warehouse in kilograms
+                  example: "362.20"
+                  in: body
+                  name: income_kg
+                  required: true
+                  schema:
+                    format: double
+                    type: number
+                  x-go-name: Income_kg
+                - description: Last name of the operator who took the fuel to the warehouse
+                  example: Some Last name
+                  in: body
+                  name: operator
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: Operator
+                - description: Name of the fuel provider
+                  example: Some Name
+                  in: body
+                  name: provider
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: Provider
+                - description: Name of the fuel carrier
+                  example: Some Name
+                  in: body
+                  name: contractor
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: Contractor
+                - description: The state number of the transport that delivered the fuel
+                  example: A902RUS
+                  in: body
+                  name: license_plate
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: License_plate
+                - description: Fuel loading status
+                  example: Uploaded
+                  in: body
+                  name: status
+                  required: true
+                  schema:
+                    type: string
+                  x-go-name: Status
+                - description: The status of the fuel intake record in the database (changed or not)
+                  example: "false"
+                  in: body
+                  name: been_changed
+                  required: true
+                  schema:
+                    type: boolean
+                  x-go-name: Been_changed
+            responses:
+                "200":
+                    $ref: '#/responses/gsmTableEntry'
+                "400":
+                    $ref: '#/responses/idResponse'
+            tags:
+                - addEntryGsm
+    /gsm_table/date/{date}:
+        get:
+            description: getEntryGsm retrieves an entry with a specified date from the GSM table
+            operationId: dateParam
+            parameters:
+                - description: Fuel receiving date
+                  in: path
+                  name: date
+                  required: true
+                  x-go-name: Date
+            responses:
+                "200":
+                    $ref: '#/responses/gsmTableEntry'
+                "400":
+                    $ref: '#/responses/ErrorResponse'
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            tags:
+                - getEtryGsm
+    /gsm_table/id/{id}:
+        get:
+            description: getEntryGsm retrieves an entry with a specified ID from the GSM table
+            operationId: idParam
+            parameters:
+                - description: The entry id
+                  format: int64
+                  in: path
+                  minimum: 1
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/gsmTableEntry'
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            tags:
+                - getEntryGsm
+produces:
+    - application/json
+responses:
+    ErrorResponse:
+        description: ErrorResponse represents the details of the error message.
+    gsmTableEntry:
+        description: The entry in the GSM tabl
+    idResponse:
+        description: The entry id
+schemes:
+    - http
+swagger: "2.0"

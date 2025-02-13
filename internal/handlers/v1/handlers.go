@@ -14,8 +14,8 @@
 //
 // swagger:meta
 //
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest generate spec -o openapi.yaml
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest validate openapi.yaml
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest generate spec --scan-models -o ./swagger1.yaml
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest validate ./swagger1.yaml
 package handlers
 
 import (
@@ -91,7 +91,7 @@ func RegHanlders(rMux *mux.Router) {
 
 	gsmR := apiR.PathPrefix("/gsm_table").Subrouter()
 	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
-	gsmR.HandleFunc("/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
-	gsmR.HandleFunc("/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods("GET")
+	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
+	gsmR.HandleFunc("/date/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods("GET")
 
 }

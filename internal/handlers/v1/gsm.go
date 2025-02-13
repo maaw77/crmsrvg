@@ -57,27 +57,24 @@ type _ struct {
 	Date crmDate `json:"date"`
 }
 
-// swagger:parameters gsmTableEntryParam
+// swagger:parameters gsmTableEntry
 type _ struct {
-	// The entry in the GSM table
-	// in:body
-	// required: true
 	GsmTableEntry
 }
 
-// swagger:response GsmTableEntryResponse
-type _ struct {
-	// The entry in the GSM table
-	// in:body
-	GsmTableEntry
-}
-
+// The entry id
 // swagger:response idResponse
 type _ struct {
 	// The entry id
 	// in:body
 	// min:1
 	ID int `json:"id"`
+}
+
+// The entry in the GSM tabl
+// swagger:response gsmTableEntry
+type _ struct {
+	GsmTableEntry
 }
 
 // crmDate is a date  based on the specified layout (time.DateOnly = "2006-01-02")
@@ -188,11 +185,11 @@ type gsmTable struct {
 	db string
 }
 
-// swagger:route GET /gsm_table/ getEntryGsm idParam
+// swagger:route GET /gsm_table/id/{id} getEntryGsm idParam
 // getEntryGsm retrieves an entry with a specified ID from the GSM table
 //
 // responses:
-// 200: GsmTableEntryResponse
+// 200: gsmTableEntry
 // 404: ErrorResponse
 
 // getEntryGsm receives an entry with a specified ID from the GSM table
@@ -214,11 +211,11 @@ func (g *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>ID = %s</h1>\n", id)
 }
 
-// swagger:route GET /gsm_table getEtryGsm dateParam
+// swagger:route GET /gsm_table/date/{date} getEtryGsm dateParam
 // getEntryGsm retrieves an entry with a specified date from the GSM table
 //
 // responses:
-// 200: GsmTableEntryResponse
+// 200: gsmTableEntry
 // 404: ErrorResponse
 // 400: ErrorResponse
 
@@ -266,11 +263,11 @@ func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	encod.Encode(&gsmEntry)
 }
 
-// swagger:route POST /gsm_table addEntryGsm gsmTableEntryParam
+// swagger:route POST /gsm_table addEntryGsm gsmTableEntry
 // addEntryGsm adds an entry to the GSM table
 //
 // responses:
-// 200: GsmTableEntryResponse
+// 200: gsmTableEntry
 // 400: idResponse
 
 // addEntryGsm adds an entry to the GSM table.
