@@ -78,6 +78,7 @@ type _ struct {
 }
 
 // crmDate is a date  based on the specified layout (time.DateOnly = "2006-01-02")
+// swagger:strfmt date
 type crmDate struct {
 	time.Time
 }

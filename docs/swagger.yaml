@@ -10,14 +10,6 @@ info:
     title: for the CRM Server
     version: 1.0.0
 paths:
-    /:
-        post:
-            description: Works with all HTTP methods
-            operationId: defaultHandler
-            responses:
-                "404":
-                    $ref: '#/responses/ErrorResponse'
-            summary: defaultHandler for everything that is not a match.
     /*:
         get:
             description: methodNotAllowed for endpoints used with incorrect HTTP request method
@@ -25,6 +17,13 @@ paths:
             responses:
                 "404":
                     $ref: '#/responses/ErrorResponse'
+        post:
+            description: Works with all HTTP methods
+            operationId: defaultHandler
+            responses:
+                "404":
+                    $ref: '#/responses/ErrorResponse'
+            summary: defaultHandler for everything that is not a match.
     /gsm_table:
         post:
             description: addEntryGsm adds an entry to the GSM table
@@ -35,13 +34,17 @@ paths:
                   in: body
                   name: dt_receiving
                   required: true
-                  schema: {}
+                  schema:
+                    format: date
+                    type: string
                   x-go-name: Dt_receiving
                 - description: Fuel receiving  date
                   example: "2026-01-02"
                   in: body
                   name: dt_crch
-                  schema: {}
+                  schema:
+                    format: date
+                    type: string
                   x-go-name: Dt_crch
                 - description: Name of the mining site
                   example: Some Name
@@ -121,9 +124,11 @@ paths:
             operationId: dateParam
             parameters:
                 - description: Fuel receiving date
+                  format: date
                   in: path
                   name: date
                   required: true
+                  type: string
                   x-go-name: Date
             responses:
                 "200":

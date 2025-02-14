@@ -24,6 +24,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-openapi/runtime/middleware"
+
 	"github.com/gorilla/mux"
 )
 
@@ -36,7 +38,7 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// swagger:route POST / defaultHandler
+// swagger:route POST /* defaultHandler
 // defaultHandler for everything that is not a match.
 // Works with all HTTP methods
 //
@@ -85,10 +87,15 @@ func RegHanlders(rMux *mux.Router) {
 	rMux.NotFoundHandler = http.HandlerFunc(defaultHandler)
 	rMux.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowed)
 
-	gsmT := newGsmTable()
-
 	apiR := rMux.PathPrefix("/api/v1").Subrouter()
 
+	docR := rMux.Methods(http.MethodGet).Subrouter()
+	opts := middleware.RedocOpts{SpecURL: "/docs/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	docR.Handle("/docs/", sh)
+	docR.Handle("/docs/swagger.yaml", http.FileServer(http.Dir("."))) //http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
+
+	gsmT := newGsmTable()
 	gsmR := apiR.PathPrefix("/gsm_table").Subrouter()
 	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
 	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
