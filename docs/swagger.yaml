@@ -2,149 +2,196 @@ basePath: /api/v1
 consumes:
     - application/json
 definitions:
+    ErrorMessage:
+        properties:
+            details:
+                description: Description of the situation
+                example: An error occurred
+                type: string
+                x-go-name: Details
+        title: ErrorMessage is a detailed error message.
+        type: object
+        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
     GsmTableEntry:
         description: GsmTableEntry defines the structure for the entry in the GSM table
+        properties:
+            been_changed:
+                description: The status of the fuel intake record in the database (changed or not)
+                example: false
+                type: boolean
+                x-go-name: Been_changed
+            contractor:
+                description: Name of the fuel carrier
+                example: Some Name
+                type: string
+                x-go-name: Contractor
+            dt_crch:
+                description: Fuel receiving  date
+                example: "2026-01-02"
+                format: date
+                type: string
+                x-go-name: Dt_crch
+            dt_receiving:
+                description: Fuel receiving date
+                example: "2026-01-02"
+                format: date
+                type: string
+                x-go-name: Dt_receiving
+            id:
+                description: ID of the database entry
+                format: int64
+                minimum: 1
+                type: integer
+                x-go-name: ID
+            income_kg:
+                description: The amount of fuel received at the warehouse in kilograms
+                example: 362.2
+                format: double
+                type: number
+                x-go-name: Income_kg
+            license_plate:
+                description: The state number of the transport that delivered the fuel
+                example: A902RUS
+                type: string
+                x-go-name: License_plate
+            operator:
+                description: Last name of the operator who took the fuel to the warehouse
+                example: Some Last name
+                type: string
+                x-go-name: Operator
+            provider:
+                description: Name of the fuel provider
+                example: Some Name
+                type: string
+                x-go-name: Provider
+            site:
+                description: Name of the mining site
+                example: Some Name
+                type: string
+                x-go-name: Site
+            status:
+                description: Fuel loading status
+                example: Uploaded
+                type: string
+                x-go-name: Status
+        required:
+            - id
+            - dt_receiving
+            - site
+            - income_kg
+            - operator
+            - provider
+            - contractor
+            - license_plate
+            - status
+            - been_changed
+        type: object
+        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
+    IdEntry:
+        properties:
+            id:
+                description: ID of the database entry
+                format: int64
+                minimum: 1
+                type: integer
+                x-go-name: ID
+        required:
+            - id
+        type: object
         x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
 info:
+    contact:
+        email: maaw@mai.ru
     description: Documentation for REST API
-    title: for the CRM Server
+    license:
+        name: MIT
+        url: http://opensource.org/licenses/MIT
+    title: CRM Server
     version: 1.0.0
 paths:
-    /*:
+    /:
         get:
-            description: methodNotAllowed for endpoints used with incorrect HTTP request method
-            operationId: methodNotAllowed
-            responses:
-                "404":
-                    $ref: '#/responses/ErrorResponse'
-        post:
-            description: Works with all HTTP methods
+            description: |-
+                Default Handler for everything that is not a match.
+                Works with all HTTP methods
             operationId: defaultHandler
             responses:
                 "404":
-                    $ref: '#/responses/ErrorResponse'
-            summary: defaultHandler for everything that is not a match.
+                    description: ErrorMessage
+                    schema:
+                        $ref: '#/definitions/ErrorMessage'
+            security:
+                - api_key:
+                    - '[]'
+            summary: defaultHandler
+    /*:
+        get:
+            description: |-
+                Default Handler for endpoints used with incorrect HTTP request method.
+                Works with all paths and HTTP methods
+            operationId: methodNotAllowed
+            responses:
+                "405":
+                    description: ErrorMessage
+                    schema:
+                        $ref: '#/definitions/ErrorMessage'
+            summary: methodNotAllowed
     /gsm_table:
         post:
-            description: addEntryGsm adds an entry to the GSM table
-            operationId: gsmTableEntry
+            description: Adds an entry to the GSM table
+            operationId: paramGsmTableEntry
             parameters:
-                - description: Fuel receiving date
-                  example: "2026-01-02"
+                - description: The structure for the entry in the GSM table
                   in: body
-                  name: dt_receiving
-                  required: true
+                  name: Body
                   schema:
-                    format: date
-                    type: string
-                  x-go-name: Dt_receiving
-                - description: Fuel receiving  date
-                  example: "2026-01-02"
-                  in: body
-                  name: dt_crch
-                  schema:
-                    format: date
-                    type: string
-                  x-go-name: Dt_crch
-                - description: Name of the mining site
-                  example: Some Name
-                  in: body
-                  name: site
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: Site
-                - description: The amount of fuel received at the warehouse in kilograms
-                  example: "362.20"
-                  in: body
-                  name: income_kg
-                  required: true
-                  schema:
-                    format: double
-                    type: number
-                  x-go-name: Income_kg
-                - description: Last name of the operator who took the fuel to the warehouse
-                  example: Some Last name
-                  in: body
-                  name: operator
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: Operator
-                - description: Name of the fuel provider
-                  example: Some Name
-                  in: body
-                  name: provider
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: Provider
-                - description: Name of the fuel carrier
-                  example: Some Name
-                  in: body
-                  name: contractor
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: Contractor
-                - description: The state number of the transport that delivered the fuel
-                  example: A902RUS
-                  in: body
-                  name: license_plate
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: License_plate
-                - description: Fuel loading status
-                  example: Uploaded
-                  in: body
-                  name: status
-                  required: true
-                  schema:
-                    type: string
-                  x-go-name: Status
-                - description: The status of the fuel intake record in the database (changed or not)
-                  example: "false"
-                  in: body
-                  name: been_changed
-                  required: true
-                  schema:
-                    type: boolean
-                  x-go-name: Been_changed
+                    $ref: '#/definitions/GsmTableEntry'
+            produces:
+                - application/json
             responses:
                 "200":
-                    $ref: '#/responses/gsmTableEntry'
+                    description: IdEntry
+                    schema:
+                        $ref: '#/definitions/IdEntry'
                 "400":
-                    $ref: '#/responses/idResponse'
+                    description: ErrorMessage
+                    schema:
+                        $ref: '#/definitions/ErrorMessage'
+            summary: addEntryGsm
             tags:
-                - addEntryGsm
+                - GSM
     /gsm_table/date/{date}:
         get:
-            description: getEntryGsm retrieves an entry with a specified date from the GSM table
-            operationId: dateParam
+            description: Receives aan entry with a specified date from the GSM table
+            operationId: paramCrmDate
             parameters:
-                - description: Fuel receiving date
+                - description: It is a date  based on the specified layout ("2006-01-02")
                   format: date
                   in: path
                   name: date
                   required: true
                   type: string
-                  x-go-name: Date
+                  x-go-name: DATE
+            produces:
+                - application/json
             responses:
                 "200":
-                    $ref: '#/responses/gsmTableEntry'
-                "400":
-                    $ref: '#/responses/ErrorResponse'
+                    description: GsmTableEntry
+                    schema:
+                        $ref: '#/definitions/GsmTableEntry'
                 "404":
-                    $ref: '#/responses/ErrorResponse'
+                    description: ErrorMessage
+                    schema:
+                        $ref: '#/definitions/ErrorMessage'
+            summary: getDateEntryGsm
             tags:
-                - getEtryGsm
+                - GSM
     /gsm_table/id/{id}:
         get:
-            description: getEntryGsm retrieves an entry with a specified ID from the GSM table
-            operationId: idParam
+            description: Receives an entry with a specified ID from the GSM table
+            operationId: paramIdEntry
             parameters:
-                - description: The entry id
+                - description: ID of the database entry
                   format: int64
                   in: path
                   minimum: 1
@@ -152,22 +199,27 @@ paths:
                   required: true
                   type: integer
                   x-go-name: ID
+            produces:
+                - application/json
             responses:
                 "200":
-                    $ref: '#/responses/gsmTableEntry'
+                    description: GsmTableEntry
+                    schema:
+                        $ref: '#/definitions/GsmTableEntry'
                 "404":
-                    $ref: '#/responses/ErrorResponse'
+                    description: ErrorMessage
+                    schema:
+                        $ref: '#/definitions/ErrorMessage'
+            summary: getIdEntryGsm
             tags:
-                - getEntryGsm
+                - GSM
 produces:
     - application/json
-responses:
-    ErrorResponse:
-        description: ErrorResponse represents the details of the error message.
-    gsmTableEntry:
-        description: The entry in the GSM tabl
-    idResponse:
-        description: The entry id
 schemes:
     - http
+securityDefinitions:
+    api_key:
+        in: header
+        name: Authorization
+        type: apiKey
 swagger: "2.0"

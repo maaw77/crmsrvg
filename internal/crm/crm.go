@@ -1,3 +1,6 @@
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest generate spec --scan-models -o /home/maaw/work/Golang/crmsrvg/docs/swagger.yaml
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest validate /home/maaw/work/Golang/crmsrvg/docs/swagger.yaml
+
 package crm
 
 import (

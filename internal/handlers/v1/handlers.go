@@ -1,21 +1,29 @@
-// Package handlers for the CRM Server
+// Package handlers CRM Server
 //
 // Documentation for REST API
 //
-//	Schemes: http
-//	BasePath: /api/v1
-//	Version: 1.0.0
+//		Schemes: http
+//		Host:
+//		BasePath: /api/v1
+//		Version: 1.0.0
 //
-//	Consumes:
-//	- application/json
+//		TermsOfService: http://swagger.io/terms/
+//		Contact: maaw@mai.ru
+//		License: MIT http://opensource.org/licenses/MIT
 //
-//	Produces:
-//	- application/json
+//		Consumes:
+//		- application/json
+//
+//		Produces:
+//		- application/json
+//
+//	     SecurityDefinitions:
+//	         api_key:
+//	             type: apiKey
+//	             name: Authorization
+//	             in: header
 //
 // swagger:meta
-//
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest generate spec --scan-models -o ./swagger1.yaml
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest validate ./swagger1.yaml
 package handlers
 
 import (
@@ -25,25 +33,28 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/gorilla/mux"
 )
 
-// ErrorResponse represents the details of the error message.
-// swagger:response ErrorResponse
-type ErrorResponse struct {
-	// The error message
+// ErrorMessage is a detailed error message.
+// swagger:model ErrorMessage
+type ErrorMessage struct {
+	// Description of the situation
 	// example: An error occurred
-	// in: body
-	Error string `json:"error"`
+	Details string `json:"details"`
 }
 
-// swagger:route POST /* defaultHandler
-// defaultHandler for everything that is not a match.
+// swagger:route GET / defaultHandler
+//
+// defaultHandler
+//
+// Default Handler for everything that is not a match.
 // Works with all HTTP methods
 //
+// security:
+// - api_key: []
 // responses:
-// 404: ErrorResponse
+//	404: ErrorMessage
 
 // defaultHandler is executed when no route matches.
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,17 +64,21 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 
 	encod := json.NewEncoder(w)
-	encod.Encode(&ErrorResponse{Error: fmt.Sprintf(`%s is not supported`, r.URL.Path)})
+	encod.Encode(&ErrorMessage{Details: fmt.Sprintf(`%s is not supported`, r.URL.Path)})
 
 	// body := fmt.Sprintf(`%s is not supported`, r.URL.Path)
 	// fmt.Fprintf(w, "%s", body)
 }
 
 // swagger:route GET /* methodNotAllowed
-// methodNotAllowed for endpoints used with incorrect HTTP request method
+//
+// methodNotAllowed
+//
+// Default Handler for endpoints used with incorrect HTTP request method.
+// Works with all paths and HTTP methods
 //
 // responses:
-//	404: ErrorResponse
+//	405: ErrorMessage
 
 // methodNotAllowed is execode when the request method does not match the route.
 func methodNotAllowed(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +91,7 @@ func methodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "%s", body)
 
 	encod := json.NewEncoder(w)
-	encod.Encode(&ErrorResponse{Error: fmt.Sprintf(`%s is not supported`, r.Method)})
+	encod.Encode(&ErrorMessage{Details: fmt.Sprintf(`%s is not supported`, r.Method)})
 
 }
 
@@ -89,11 +104,11 @@ func RegHanlders(rMux *mux.Router) {
 
 	apiR := rMux.PathPrefix("/api/v1").Subrouter()
 
-	docR := rMux.Methods(http.MethodGet).Subrouter()
-	opts := middleware.RedocOpts{SpecURL: "/docs/swagger.yaml"}
+	docR := apiR.Methods(http.MethodGet).Subrouter()
+	opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
 	sh := middleware.Redoc(opts, nil)
 	docR.Handle("/docs/", sh)
-	docR.Handle("/docs/swagger.yaml", http.FileServer(http.Dir("."))) //http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
+	docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
 
 	gsmT := newGsmTable()
 	gsmR := apiR.PathPrefix("/gsm_table").Subrouter()

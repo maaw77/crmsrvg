@@ -1,0 +1,169 @@
+basePath: /api/v1
+consumes:
+    - application/json
+definitions:
+    CreateThing:
+        x-go-package: github.com/ldej/swagger-go-example/goswagger
+    ErrorResponse:
+        x-go-package: github.com/ldej/swagger-go-example/goswagger
+    ThingResponse:
+        x-go-package: github.com/ldej/swagger-go-example/goswagger
+    ThingsResponse:
+        x-go-package: github.com/ldej/swagger-go-example/goswagger
+    UpdateThing:
+        x-go-package: github.com/ldej/swagger-go-example/goswagger
+host: localhost:8080
+info:
+    contact:
+        email: support@ldej.nl
+        name: Laurence de Jong
+        url: https://ldej.nl/
+    description: Documentation of the thing API.
+    license:
+        name: MIT
+        url: http://opensource.org/licenses/MIT
+    title: A thing server.
+    version: 1.0.0
+paths:
+    /thing/:
+        get:
+            description: This is the description for listing things. Which can be longer.
+            operationId: list-things
+            parameters:
+                - description: Page
+                  format: int64
+                  in: query
+                  name: Page
+                  type: integer
+                - description: Limit (max 100)
+                  format: int64
+                  in: query
+                  name: Limit
+                  type: integer
+            responses:
+                "200":
+                    description: ThingsResponse
+                    schema:
+                        $ref: '#/definitions/ThingsResponse'
+                "404":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            summary: This is the summary for listing things
+            tags:
+                - Thing
+    /thing/{uuid}:
+        delete:
+            description: This is the description for deleting a thing. Which can be longer.
+            operationId: delete-thing
+            parameters:
+                - description: The UUID of a thing
+                  in: path
+                  name: uuid
+                  required: true
+                  type: string
+                  x-go-name: UUID
+            produces:
+                - text/plain
+            responses:
+                "200":
+                    description: ""
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            summary: This is the summary for deleting a thing
+            tags:
+                - Thing
+        get:
+            description: This is the description for getting a thing by its UUID. Which can be longer.
+            operationId: get-thing
+            parameters:
+                - description: The UUID of a thing
+                  in: path
+                  name: uuid
+                  required: true
+                  type: string
+                  x-go-name: UUID
+            responses:
+                "200":
+                    description: ThingResponse
+                    schema:
+                        $ref: '#/definitions/ThingResponse'
+                "404":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            summary: This is the summary for getting a thing by its UUID
+            tags:
+                - Thing
+        put:
+            description: This is the description for updating a thing. Which can be longer.
+            operationId: update-thing
+            parameters:
+                - description: The UUID of a thing
+                  in: path
+                  name: uuid
+                  required: true
+                  type: string
+                  x-go-name: UUID
+                - description: The body to update a thing
+                  in: body
+                  name: Body
+                  required: true
+                  schema: {}
+            responses:
+                "200":
+                    description: ThingResponse
+                    schema:
+                        $ref: '#/definitions/ThingResponse'
+                "404":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            summary: This is the summary for updating a thing
+            tags:
+                - Thing
+    /thing/new:
+        post:
+            description: This is the description for creating a thing. Which can be longer.
+            operationId: create-thing
+            parameters:
+                - description: The body to create a thing
+                  in: body
+                  name: Body
+                  required: true
+                  schema: {}
+            responses:
+                "200":
+                    description: ThingResponse
+                    schema:
+                        $ref: '#/definitions/ThingResponse'
+                "404":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+                "500":
+                    description: ErrorResponse
+                    schema:
+                        $ref: '#/definitions/ErrorResponse'
+            summary: This is the summary for creating a thing
+            tags:
+                - Thing
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"
