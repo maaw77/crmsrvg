@@ -3,102 +3,13 @@ consumes:
     - application/json
 definitions:
     ErrorMessage:
-        properties:
-            details:
-                description: Description of the situation
-                example: An error occurred
-                type: string
-                x-go-name: Details
         title: ErrorMessage is a detailed error message.
-        type: object
         x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
     GsmTableEntry:
         description: GsmTableEntry defines the structure for the entry in the GSM table
-        properties:
-            been_changed:
-                description: The status of the fuel intake record in the database (changed or not)
-                example: false
-                type: boolean
-                x-go-name: Been_changed
-            contractor:
-                description: Name of the fuel carrier
-                example: Some Name
-                type: string
-                x-go-name: Contractor
-            dt_crch:
-                description: Fuel receiving  date
-                example: "2026-01-02"
-                format: date
-                type: string
-                x-go-name: Dt_crch
-            dt_receiving:
-                description: Fuel receiving date
-                example: "2026-01-02"
-                format: date
-                type: string
-                x-go-name: Dt_receiving
-            id:
-                description: ID of the database entry
-                format: int64
-                minimum: 1
-                type: integer
-                x-go-name: ID
-            income_kg:
-                description: The amount of fuel received at the warehouse in kilograms
-                example: 362.2
-                format: double
-                type: number
-                x-go-name: Income_kg
-            license_plate:
-                description: The state number of the transport that delivered the fuel
-                example: A902RUS
-                type: string
-                x-go-name: License_plate
-            operator:
-                description: Last name of the operator who took the fuel to the warehouse
-                example: Some Last name
-                type: string
-                x-go-name: Operator
-            provider:
-                description: Name of the fuel provider
-                example: Some Name
-                type: string
-                x-go-name: Provider
-            site:
-                description: Name of the mining site
-                example: Some Name
-                type: string
-                x-go-name: Site
-            status:
-                description: Fuel loading status
-                example: Uploaded
-                type: string
-                x-go-name: Status
-        required:
-            - id
-            - dt_receiving
-            - site
-            - income_kg
-            - operator
-            - provider
-            - contractor
-            - license_plate
-            - status
-            - been_changed
-        type: object
-        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
+        x-go-package: github.com/maaw77/crmsrvg/internal/models
     IdEntry:
-        properties:
-            id:
-                description: ID of the database entry
-                format: int64
-                minimum: 1
-                type: integer
-                x-go-name: ID
-        required:
-            - id
-        type: object
-        x-go-package: github.com/maaw77/crmsrvg/internal/handlers/v1
+        x-go-package: github.com/maaw77/crmsrvg/internal/models
 info:
     contact:
         email: maaw@mai.ru
@@ -144,8 +55,7 @@ paths:
                 - description: The structure for the entry in the GSM table
                   in: body
                   name: Body
-                  schema:
-                    $ref: '#/definitions/GsmTableEntry'
+                  schema: {}
             produces:
                 - application/json
             responses:

@@ -4,3 +4,7 @@ server:
   ReadTimeout: 25 # Seconds
   IdleTimeout: 70 # Seconds
   ShutdownTimeout: 25 # Seconds
+db:
+  DB: postgres
+  Ueser: postgres
+  Password: crmpassword

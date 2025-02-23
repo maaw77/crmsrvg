@@ -50,3 +50,7 @@ func InitConfigServer(pathConfig string) (*http.Server, time.Duration) {
 		},
 		time.Second * viper.GetDuration("server.ShutdownTimeout")
 }
+
+func InitConfigPoolDB(pathConfig string) {
+
+}

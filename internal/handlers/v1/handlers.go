@@ -111,6 +111,7 @@ func RegHanlders(rMux *mux.Router) {
 	docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
 
 	gsmT := newGsmTable()
+
 	gsmR := apiR.PathPrefix("/gsm_table").Subrouter()
 	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
 	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
