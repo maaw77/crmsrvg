@@ -2,22 +2,41 @@ package database
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var (
+	// ErrConStrEmty occurs when argument function NewCrmDatabase is empty.
+	ErrConStrEmty = errors.New("connection string is empty")
+)
+
+// CrmDatabase is the storage for the CRM server.
 type CrmDatabase struct {
 	dbpool *pgxpool.Pool
 }
 
-// creates a new Pool.
-func (d *CrmDatabase) CreatePool(ctx context.Context, config *pgxpool.Config) (err error) {
+// createPool creates a new Pool.
+func (d *CrmDatabase) createPool(ctx context.Context, config *pgxpool.Config) (err error) {
 	d.dbpool, err = pgxpool.NewWithConfig(ctx, config)
 	return
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
-func NewCrmDatabase() (crmDB *CrmDatabase, err error) {
+func NewCrmDatabase(ctx context.Context, connStr string) (crmDB *CrmDatabase, err error) {
+	if connStr == "" {
+		return crmDB, ErrConStrEmty
+	}
+	config, err := pgxpool.ParseConfig(connStr)
+
+	if err != nil {
+		return crmDB, err
+	}
+
+	crmDB = &CrmDatabase{}
+
+	err = crmDB.createPool(ctx, config)
 
 	return
 
