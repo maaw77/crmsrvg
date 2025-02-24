@@ -8,3 +8,6 @@ db:
   DB: postgres
   Ueser: postgres
   Password: crmpassword
+  Host: localhost
+  Port: 5433
+  PoolMaxConns: 7

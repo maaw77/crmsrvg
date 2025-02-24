@@ -47,17 +47,20 @@ func InitConfigServer(pathConfig string) (*http.Server, time.Duration) {
 		time.Second * viper.GetDuration("server.ShutdownTimeout")
 }
 
-func InitConnString(pathConfig string) (connString string, err error) {
+// InitConnString returns a connection string for parsing using pgxpool.ParseConfig (github.com/jackc/pgx/v5/pgconn)
+// in datebase.NewCrmDatabase.
+func InitConnString(pathConfig string) (connString string) {
 	dir, file := filepath.Split(pathConfig)
 	log.Println(dir, file)
 	fileName := strings.Split(file, ".")[0]
 
-	// Setting default values for the server and the deadline.
-	viper.SetDefault("server.Addr", "0.0.0.0:8080")
-	viper.SetDefault("server.WriteTimeout", 15)
-	viper.SetDefault("server.ReadTimeout", 15)
-	viper.SetDefault("server.IdleTimeout", 60)
-	viper.SetDefault("server.ShutdownTimeout", 15)
+	// Setting default values for the connection string.
+	viper.SetDefault("db.DB", "postgres")
+	viper.SetDefault("db.User", "postgres")
+	viper.SetDefault("db.Password", "crmpassword")
+	viper.SetDefault("db.Host", "localhost")
+	viper.SetDefault("db.Port", "5433")
+	viper.SetDefault("db.PoolMaxConns", "10")
 
 	viper.SetConfigName(fileName)
 	viper.SetConfigType("yaml")
@@ -71,5 +74,13 @@ func InitConnString(pathConfig string) (connString string, err error) {
 		}
 	}
 
-	return
+	connString = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=%s",
+		viper.GetString("db.User"),
+		viper.GetString("db.Password"),
+		viper.GetString("db.Host"),
+		viper.GetString("db.Port"),
+		viper.GetString("db.DB"),
+		viper.GetString("db.PoolMaxConns"),
+	)
+	return connString
 }

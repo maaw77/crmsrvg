@@ -4,12 +4,16 @@ import (
 	"context"
 	"errors"
 	"testing"
+
+	"github.com/maaw77/crmsrvg/config"
 )
 
 var (
-	POSTGRESQL_URL     = "postgres://postgres:crmpassword@localhost:5433/postgres?sslmode=disable&pool_max_conns=10"
+	POSTGRESQL_URL     = config.InitConnString("")
 	POSTGRESQL_URL_BAD = "postgres://postgres:crmpasswordocalhost:5433/postgres?sslmode=disable&pool_max_conns=10"
-	crmDB              *CrmDatabase
+
+	// crmDB is the current instance of the CrmDatabase.
+	crmDB *CrmDatabase
 )
 
 func TestNewCrmDatabaseEmty(t *testing.T) {
