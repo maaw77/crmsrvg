@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/maaw77/crmsrvg/config"
+	"github.com/maaw77/crmsrvg/internal/models"
 )
 
 var (
@@ -40,4 +41,9 @@ func TestPoolDbPing(t *testing.T) {
 	}
 
 	t.Logf("%#v\n", crmDB.dbpool.Config().ConnString())
+}
+
+func TestAuxilTableSites(t *testing.T) {
+	entries := map[string]models.IdEntry{}
+
 }

@@ -3,8 +3,11 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/maaw77/crmsrvg/internal/models"
 )
 
 var (
@@ -18,9 +21,52 @@ type CrmDatabase struct {
 }
 
 // createPool creates a new Pool.
-func (d *CrmDatabase) createPool(ctx context.Context, config *pgxpool.Config) (err error) {
-	d.dbpool, err = pgxpool.NewWithConfig(ctx, config)
+func (c *CrmDatabase) createPool(ctx context.Context, config *pgxpool.Config) (err error) {
+	c.dbpool, err = pgxpool.NewWithConfig(ctx, config)
 	return
+}
+
+// getIdOrCreateAuxilTable returns the ID if the record exists, otherwise creates the record and returns its ID.
+// It's for the nameTable
+func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, valRecord string) (id models.IdEntry, err error) {
+	statmentGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
+	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
+
+	err = c.dbpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		err := c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+		if err != nil {
+			return id, err
+		}
+	case err != nil:
+		return id, err
+
+	}
+
+	return id, nil
+}
+
+// delRowAuxilTable deletes the row with the specified id from the nameTable and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id int) (statusExec bool, err error) {
+	statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", nameTable)
+	comT, err := c.dbpool.Exec(ctx, statmentDel, id)
+	statusExec = comT.RowsAffected() != 0
+	return
+}
+
+// rGetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the Sites table.
+func (c *CrmDatabase) GetIdOrCreateSites(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	// id, err = c.getIdOrCreateAuxilTable(ctx, "sites", valRocrd)
+	return c.getIdOrCreateAuxilTable(ctx, "sites", valRecord)
+}
+
+// delRowAuxilTable deletes the row with the specified id from the Sites table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowSites(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "sites", id)
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
@@ -41,22 +87,3 @@ func NewCrmDatabase(ctx context.Context, connStr string) (crmDB *CrmDatabase, er
 	return
 
 }
-
-// func Datebase() {
-
-// 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-// 	if err != nil {
-// 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// 	defer dbpool.Close()
-
-// 	var greeting string
-// 	err = dbpool.QueryRow(context.Background(), "select 'Hello, world!'").Scan(&greeting)
-// 	if err != nil {
-// 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-// 		os.Exit(1)
-// 	}
-
-// 	fmt.Println(greeting)
-// }
