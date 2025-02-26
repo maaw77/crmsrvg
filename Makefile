@@ -17,9 +17,9 @@ migr_up: ### migration up
 	migrate -verbose -database ${POSTGRESQL_URL} -path ./migrations up 
 	
 PHONY: migr_down  
-migr_down: ### print current migration version
+migr_down: ### migration down
 	migrate -verbose -database ${POSTGRESQL_URL} -path ./migrations down
 
 PHONY: migr_ver 
-migr_ver: ### migration down
+migr_ver: ### print current migration version
 	migrate -verbose -database ${POSTGRESQL_URL} -path ./migrations version 

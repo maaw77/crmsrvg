@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 
 	"github.com/maaw77/crmsrvg/config"
@@ -44,6 +45,49 @@ func TestPoolDbPing(t *testing.T) {
 }
 
 func TestAuxilTableSites(t *testing.T) {
+	var err error
 	entries := map[string]models.IdEntry{}
 
+	for i := 0; i <= 10; i++ {
+		entries["Site_"+strconv.Itoa(i)], err = crmDB.GetIdOrCreateSites(context.Background(), "Site_"+strconv.Itoa(i))
+		if err != nil {
+			t.Logf("GetIdOrCreateSites-> %s != nil", err)
+		}
+	}
+
+	for k, v := range entries {
+		id, err := crmDB.GetIdOrCreateSites(context.Background(), k)
+
+		switch {
+		case err != nil:
+			t.Logf("GetIdOrCreateSites-> %s != nil", err)
+		case id.ID != v.ID:
+			t.Logf("GetIdOrCreateSites-> %d != %d", id.ID, v.ID)
+		}
+
+	}
+
+	for k, v := range entries {
+		s, err := crmDB.DelRowSites(context.Background(), v.ID)
+
+		switch {
+		case err != nil:
+			t.Logf("DelRowSites-> %s != nil. For %s", err, k)
+		case s == false:
+			t.Logf("DelRowSites-> %v != true. For %s", s, k)
+		}
+
+	}
+
+	for k, v := range entries {
+		s, err := crmDB.DelRowSites(context.Background(), v.ID)
+
+		switch {
+		case err != nil:
+			t.Logf("DelRowSites-> %s != nil. For %s", err, k)
+		case s == true:
+			t.Logf("DelRowSites-> %v != false. For %s", s, k)
+		}
+
+	}
 }

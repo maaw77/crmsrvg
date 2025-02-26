@@ -33,18 +33,21 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
 
 	err = c.dbpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
-	switch {
-	case errors.Is(err, pgx.ErrNoRows):
-		err := c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
-		if err != nil {
-			return id, err
-		}
-	case err != nil:
-		return id, err
+	// switch {
+	// case errors.Is(err, pgx.ErrNoRows):
+	// 	err := c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+	// 	if err != nil {
+	// 		return id, err
+	// 	}
+	// case err != nil:
+	// 	return id, err
 
+	// }
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
 	}
-
-	return id, nil
+	return
 }
 
 // delRowAuxilTable deletes the row with the specified id from the nameTable and returns statusExe==true,
@@ -52,7 +55,7 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id int) (statusExec bool, err error) {
 	statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", nameTable)
 	comT, err := c.dbpool.Exec(ctx, statmentDel, id)
-	statusExec = comT.RowsAffected() != 0
+	statusExec = comT.RowsAffected() == 1
 	return
 }
 
