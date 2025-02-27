@@ -49,28 +49,76 @@ func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id
 	return
 }
 
-// rGetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// GetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
 // It's for the Sites table.
 func (c *CrmDatabase) GetIdOrCreateSites(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
 	return c.getIdOrCreateAuxilTable(ctx, "sites", valRecord)
 }
 
-// delRowAuxilTable deletes the row with the specified id from the Sites table and returns statusExe==true,
+// DelRowSites deletes the row with the specified id from the Sites table and returns statusExe==true,
 // otherwise statusExe==false.
 func (c *CrmDatabase) DelRowSites(ctx context.Context, id int) (statusExec bool, err error) {
 	return c.delRowAuxilTable(ctx, "sites", id)
 }
 
-// rGetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// GetIdOrCreateStatuses returns the ID if the record exists, otherwise it creates the record and returns its ID.
 // It's for the Statuses table.
 func (c *CrmDatabase) GetIdOrCreateStatuses(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
 	return c.getIdOrCreateAuxilTable(ctx, "statuses", valRecord)
 }
 
-// delRowAuxilTable deletes the row with the specified id from the Statuses table and returns statusExe==true,
+// DelRowStatuses deletes the row with the specified id from the Statuses table and returns statusExe==true,
 // otherwise statusExe==false.
 func (c *CrmDatabase) DelRowStatuses(ctx context.Context, id int) (statusExec bool, err error) {
 	return c.delRowAuxilTable(ctx, "statuses", id)
+}
+
+// GetIdOrCreatContractors returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the Contractors table.
+func (c *CrmDatabase) GetIdOrCreateContractors(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	return c.getIdOrCreateAuxilTable(ctx, "contractors", valRecord)
+}
+
+// DelRowContractors deletes the row with the specified id from the Contractors table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowContractors(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "contractors", id)
+}
+
+// GetIdOrCreateLicensePlates returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the License_plates  table.
+func (c *CrmDatabase) GetIdOrCreateLicensePlates(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	return c.getIdOrCreateAuxilTable(ctx, "license_plates", valRecord)
+}
+
+// DelRowLicensePlatesdeletes the row with the specified id from the License_plates table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowLicensePlates(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "license_plates", id)
+}
+
+// GetIdOrCreateOperators returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the Operators table.
+func (c *CrmDatabase) GetIdOrCreateOperators(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	return c.getIdOrCreateAuxilTable(ctx, "operators", valRecord)
+}
+
+// DelRowOperators deletes the row with the specified id from the Operators table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowOperators(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "operators", id)
+}
+
+// GetIdOrCreateProviders  returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the Providers table.
+func (c *CrmDatabase) GetIdOrCreateProviders(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	return c.getIdOrCreateAuxilTable(ctx, "providers", valRecord)
+}
+
+// DelRowProviders deletes the row with the specified id from the Providers table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowProviders(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "providers", id)
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
