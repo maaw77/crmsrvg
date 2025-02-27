@@ -33,16 +33,6 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
 
 	err = c.dbpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
-	// switch {
-	// case errors.Is(err, pgx.ErrNoRows):
-	// 	err := c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
-	// 	if err != nil {
-	// 		return id, err
-	// 	}
-	// case err != nil:
-	// 	return id, err
-
-	// }
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
@@ -62,7 +52,6 @@ func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id
 // rGetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
 // It's for the Sites table.
 func (c *CrmDatabase) GetIdOrCreateSites(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
-	// id, err = c.getIdOrCreateAuxilTable(ctx, "sites", valRocrd)
 	return c.getIdOrCreateAuxilTable(ctx, "sites", valRecord)
 }
 
@@ -70,6 +59,18 @@ func (c *CrmDatabase) GetIdOrCreateSites(ctx context.Context, valRecord string) 
 // otherwise statusExe==false.
 func (c *CrmDatabase) DelRowSites(ctx context.Context, id int) (statusExec bool, err error) {
 	return c.delRowAuxilTable(ctx, "sites", id)
+}
+
+// rGetIdOrCreateSites returns the ID if the record exists, otherwise it creates the record and returns its ID.
+// It's for the Statuses table.
+func (c *CrmDatabase) GetIdOrCreateStatuses(ctx context.Context, valRecord string) (id models.IdEntry, err error) {
+	return c.getIdOrCreateAuxilTable(ctx, "statuses", valRecord)
+}
+
+// delRowAuxilTable deletes the row with the specified id from the Statuses table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowStatuses(ctx context.Context, id int) (statusExec bool, err error) {
+	return c.delRowAuxilTable(ctx, "statuses", id)
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.

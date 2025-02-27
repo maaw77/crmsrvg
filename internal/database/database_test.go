@@ -91,3 +91,51 @@ func TestAuxilTableSites(t *testing.T) {
 
 	}
 }
+
+func TestAuxilTableStatuses(t *testing.T) {
+	var err error
+	entries := map[string]models.IdEntry{}
+
+	for i := 0; i <= 10; i++ {
+		entries["Statuses_"+strconv.Itoa(i)], err = crmDB.GetIdOrCreateStatuses(context.Background(), "Statuses_"+strconv.Itoa(i))
+		if err != nil {
+			t.Logf("GetIdOrCreateStatuses-> %s != nil", err)
+		}
+	}
+
+	for k, v := range entries {
+		id, err := crmDB.GetIdOrCreateStatuses(context.Background(), k)
+
+		switch {
+		case err != nil:
+			t.Logf("GetIdOrCreateStatuses-> %s != nil", err)
+		case id.ID != v.ID:
+			t.Logf("GetIdOrCreateStatuses-> %d != %d", id.ID, v.ID)
+		}
+
+	}
+
+	for k, v := range entries {
+		s, err := crmDB.DelRowStatuses(context.Background(), v.ID)
+
+		switch {
+		case err != nil:
+			t.Logf("DelRowStatuses-> %s != nil. For %s", err, k)
+		case s == false:
+			t.Logf("DelRowSites-> %v != true. For %s", s, k)
+		}
+
+	}
+
+	for k, v := range entries {
+		s, err := crmDB.DelRowStatuses(context.Background(), v.ID)
+
+		switch {
+		case err != nil:
+			t.Logf("DelRowStatuses-> %s != nil. For %s", err, k)
+		case s == true:
+			t.Logf("DelRowStatuses-> %v != false. For %s", s, k)
+		}
+
+	}
+}
