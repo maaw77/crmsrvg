@@ -121,6 +121,87 @@ func (c *CrmDatabase) DelRowProviders(ctx context.Context, id int) (statusExec b
 	return c.delRowAuxilTable(ctx, "providers", id)
 }
 
+// getIdOrCreateAuxilTableTx  is similar to  getIdOrCreateAuxilTable, but is used pgxpool.Tx.
+func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx, nameTable, valRecord string) (id models.IdEntry, err error) {
+	statmentGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
+	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
+
+	tx, ok := txI.(*pgxpool.Tx)
+	if !ok {
+		return models.IdEntry{}, fmt.Errorf("%T != *pgxpool.Tx")
+	}
+
+	err = tx.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = tx.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+	}
+	return
+}
+
+// InserGsmTable inserts a row into the Gsm table.
+func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
+	tx, err := c.dbpool.Begin(ctx)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback(context.Background())
+
+	statmentCreatGsmRow := `INSERT INTO gsm_table (id, 
+                                            dt_receiving,
+                                            dt_crch,
+                                            income_kg,
+                                            been_changed,
+                                            db_data_creation,
+                                            site_id,
+                                            operator_id,
+                                            provider_id,
+                                            contractor_id,
+                                            license_plate_id,
+                                            status_id,
+                                            guid) 
+                                            VALUES (DEFAULT, $1, $2, $3, $4,  $5, $6, $7, $8,  $9, $10, $11, $12)
+                                            RETURNING id;`
+
+	idSite, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "sites", gsmEntry.Site)
+	if err != nil {
+		return
+	}
+
+	idOperator, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "operators", gsmEntry.Operator)
+	if err != nil {
+		return
+	}
+
+	idProvider, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "providers", gsmEntry.Provider)
+	if err != nil {
+		return
+	}
+
+	idContractor, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "ontractors", gsmEntry.Contractor)
+	if err != nil {
+		return
+	}
+
+	idLicensePlate, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "license_plates", gsmEntry.LicensePlate)
+	if err != nil {
+		return
+	}
+
+	idStatus, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "statuses", gsmEntry.Status)
+	if err != nil {
+		return
+	}
+
+	err = tx.QueryRow(ctx, statmentCreatGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg).Scan(&(id.ID))
+
+	if err = tx.Commit(ctx); err != nil {
+		return
+	}
+
+	return id, nil
+}
+
 // NewCrmDatabase allocates and returns a new CrmDatabase.
 func NewCrmDatabase(ctx context.Context, connStr string) (crmDB *CrmDatabase, err error) {
 	if connStr == "" {

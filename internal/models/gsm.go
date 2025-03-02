@@ -51,13 +51,13 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: 2024-01-02
-	Dt_receiving CrmDate `json:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
+	DtReceiving CrmDate `json:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
 
 	// Fuel receiving  date
 	//
 	// required: false
 	// example: 2025-01-02
-	Dt_crch CrmDate `json:"dt_crch,omitempty"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
+	DtCrch CrmDate `json:"dt_crch,omitempty"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
 
 	// Name of the mining site
 	//
@@ -69,7 +69,7 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: 362.20
-	Income_kg float64 `json:"income_kg"` //     income_kg: float   # Prinyato v kg
+	IncomeKg float64 `json:"income_kg"` //     income_kg: float   # Prinyato v kg
 
 	// Last name of the operator who took the fuel to the warehouse
 	//
@@ -93,7 +93,7 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: A902RUS
-	License_plate string `json:"license_plate"` //     license_plate: str   # GOS nomer
+	LicensePlate string `json:"license_plate"` //     license_plate: str   # GOS nomer
 
 	// Fuel loading status
 	//
@@ -105,7 +105,7 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: false
-	Been_changed bool `json:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
+	BeenChanged bool `json:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
 
 }
 

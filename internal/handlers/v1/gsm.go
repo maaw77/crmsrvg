@@ -151,17 +151,17 @@ func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "<h1>date = %s</h1>\n", dt)
 
 	gsmEntry := models.GsmTableEntry{
-		ID:           12,
-		Dt_receiving: models.CrmDate{Time: dt},
+		ID:          12,
+		DtReceiving: models.CrmDate{Time: dt},
 		// Dt_crch : "",
-		Site:          "SITE_2",
-		Income_kg:     562.20,
-		Operator:      "OPERATOR_2",
-		Provider:      "PROVIDER_2",
-		Contractor:    "CONTRACTOR_2",
-		License_plate: "A342RUS",
-		Status:        "Uploaded",
-		Been_changed:  false,
+		Site:         "SITE_2",
+		IncomeKg:     562.20,
+		Operator:     "OPERATOR_2",
+		Provider:     "PROVIDER_2",
+		Contractor:   "CONTRACTOR_2",
+		LicensePlate: "A342RUS",
+		Status:       "Uploaded",
+		BeenChanged:  false,
 	}
 
 	encod.Encode(&gsmEntry)
