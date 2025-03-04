@@ -45,7 +45,7 @@ type GsmTableEntry struct {
 	//
 	// required:true
 	// min:1
-	ID int `json:"id"`
+	ID int `json:"id,omitempty"`
 
 	// Fuel receiving date
 	//

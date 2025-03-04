@@ -179,7 +179,7 @@ func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTabl
 		return
 	}
 
-	idContractor, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "ontractors", gsmEntry.Contractor)
+	idContractor, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "contractors", gsmEntry.Contractor)
 	if err != nil {
 		return
 	}
@@ -197,6 +197,9 @@ func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTabl
 	err = tx.QueryRow(ctx, statmentCreatGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
 		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
 
+	if err != nil {
+		return
+	}
 	if err = tx.Commit(ctx); err != nil {
 		return
 	}

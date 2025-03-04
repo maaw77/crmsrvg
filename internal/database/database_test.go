@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/maaw77/crmsrvg/config"
 	"github.com/maaw77/crmsrvg/internal/models"
@@ -327,4 +328,27 @@ func TestAuxilTableProviders(t *testing.T) {
 		}
 
 	}
+}
+
+func TestInserGsmTable(t *testing.T) {
+	dt, _ := time.Parse(time.DateOnly, "2024-01-02")
+
+	gsmEntry := models.GsmTableEntry{
+		ID:          12,
+		DtReceiving: models.CrmDate{Time: dt},
+		// Dt_crch : "",
+		Site:         "SITE_2",
+		IncomeKg:     562.20,
+		Operator:     "OPERATOR_2",
+		Provider:     "PROVIDER_2",
+		Contractor:   "CONTRACTOR_2",
+		LicensePlate: "A342RUS",
+		Status:       "Uploaded",
+		BeenChanged:  false,
+	}
+	t.Logf("gsmEntr=%v", gsmEntry)
+	id, err := crmDB.InserGsmTable(context.Background(), gsmEntry)
+
+	t.Log(id, err)
+
 }
