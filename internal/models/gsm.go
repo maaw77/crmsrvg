@@ -107,10 +107,9 @@ type GsmTableEntry struct {
 	// example: false
 	BeenChanged bool `json:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
 
+	// The global unique identifier of the record
+	//
+	// required: true
+	// example: false6F9619FF-8B86-D011-B42D-00CF4FC964F
+	GUID string `json:"guid"`
 }
-
-// func (g GsmTableEntry) String() string {
-
-// 	return fmt.Sprintf("{Dt_receiving: %v,  Dt_crch: %v, Site: %v, Income_kg: %v, Operator: %v, Provider: %v, Contractor: %v, License_plate: %v, Status: %v, Been_changed: %v}",
-// 		g.Dt_receiving, g.Dt_crch, g.Site, g.Income_kg, g.Operator, g.Provider, g.Contractor, g.License_plate, g.Status, g.Been_changed)
-// }

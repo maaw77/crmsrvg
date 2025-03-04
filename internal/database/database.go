@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -128,7 +129,7 @@ func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx,
 
 	tx, ok := txI.(*pgxpool.Tx)
 	if !ok {
-		return models.IdEntry{}, fmt.Errorf("%T != *pgxpool.Tx")
+		return models.IdEntry{}, fmt.Errorf("%T != *pgxpool.Tx", tx)
 	}
 
 	err = tx.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
@@ -193,7 +194,8 @@ func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTabl
 		return
 	}
 
-	err = tx.QueryRow(ctx, statmentCreatGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg).Scan(&(id.ID))
+	err = tx.QueryRow(ctx, statmentCreatGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
+		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
 
 	if err = tx.Commit(ctx); err != nil {
 		return
