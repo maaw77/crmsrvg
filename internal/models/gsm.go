@@ -25,7 +25,11 @@ func (c *CrmDate) UnmarshalJSON(b []byte) (err error) {
 }
 
 func (c CrmDate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(c.Format(time.DateOnly))
+	return json.Marshal(c.Time.Format(time.DateOnly))
+}
+
+func (c CrmDate) String() string {
+	return c.Time.Format(time.DateOnly)
 }
 
 // swagger:model

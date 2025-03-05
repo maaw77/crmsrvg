@@ -196,16 +196,27 @@ func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTabl
 
 	err = tx.QueryRow(ctx, statmentCreateGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
 		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
-
 	if err != nil {
 		return
 	}
+
 	if err = tx.Commit(ctx); err != nil {
 		return
 	}
 
 	return id, nil
 }
+
+// DelRowGsmTable deletes the row with the specified id from the GSM table and returns statusExe==true,
+// otherwise statusExe==false.
+func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bool, err error) {
+	// statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", "gsm_table")
+	comT, err := c.dbpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
+	statusExec = comT.RowsAffected() == 1
+	return
+}
+
+// GetEntryGsmTableId
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
 func NewCrmDatabase(ctx context.Context, connStr string) (crmDB *CrmDatabase, err error) {

@@ -332,7 +332,7 @@ func TestAuxilTableProviders(t *testing.T) {
 
 func TestInserGsmTable(t *testing.T) {
 	dt, _ := time.Parse(time.DateOnly, "2024-01-02")
-
+	tReceiving := models.CrmDate{Time: dt}
 	gsmEntry := models.GsmTableEntry{
 		ID:          12,
 		DtReceiving: models.CrmDate{Time: dt},
@@ -346,9 +346,8 @@ func TestInserGsmTable(t *testing.T) {
 		Status:       "Uploaded",
 		BeenChanged:  false,
 	}
-	t.Logf("gsmEntr=%v", gsmEntry)
+	t.Logf("gsmEntr=%v,\n dt=%s\n", gsmEntry, tReceiving)
 	id, err := crmDB.InserGsmTable(context.Background(), gsmEntry)
-
 	t.Log(id, err)
-
+	t.Log(crmDB.DelRowGsmTable(context.Background(), 3))
 }
