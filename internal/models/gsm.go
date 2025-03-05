@@ -32,6 +32,14 @@ func (c CrmDate) String() string {
 	return c.Time.Format(time.DateOnly)
 }
 
+// func (c *CrmDate) UnmarshalBinary(data []byte) error {
+// 	return c.Time.UnmarshalBinary(data)
+// }
+
+// func (c CrmDate) MarshalBinary() ([]byte, error) {
+// 	return c.Time.MarshalBinary()
+// }
+
 // swagger:model
 type IdEntry struct {
 	// ID of the database entry
@@ -49,71 +57,71 @@ type GsmTableEntry struct {
 	//
 	// required:true
 	// min:1
-	ID int `json:"id,omitempty"`
+	ID int `json:"id,omitempty" db:"id"`
 
 	// Fuel receiving date
 	//
 	// required: true
 	// example: 2024-01-02
-	DtReceiving CrmDate `json:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
+	DtReceiving CrmDate `json:"dt_receiving" db:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
 
 	// Fuel receiving  date
 	//
 	// required: false
 	// example: 2025-01-02
-	DtCrch CrmDate `json:"dt_crch,omitempty"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
+	DtCrch CrmDate `json:"dt_crch,omitempty" db:"dt_crch"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
 
 	// Name of the mining site
 	//
 	// required: true
 	// example: Some Name
-	Site string `json:"site"` //     site: str  # Uchastok
+	Site string `json:"site" db:"site"` //     site: str  # Uchastok
 
 	// The amount of fuel received at the warehouse in kilograms
 	//
 	// required: true
 	// example: 362.20
-	IncomeKg float64 `json:"income_kg"` //     income_kg: float   # Prinyato v kg
+	IncomeKg float64 `json:"income_kg" db:"income_kg"` //     income_kg: float   # Prinyato v kg
 
 	// Last name of the operator who took the fuel to the warehouse
 	//
 	// required: true
 	// example: Some Last name
-	Operator string `json:"operator"` //     operator: str  # Operator
+	Operator string `json:"operator" db:"operator"` //     operator: str  # Operator
 
 	// Name of the fuel provider
 	//
 	// required: true
 	// example: Some Name
-	Provider string `json:"provider"` //     provider: str  # Postavshik
+	Provider string `json:"provider" db:"provider"` //     provider: str  # Postavshik
 
 	// Name of the fuel carrier
 	//
 	// required: true
 	// example: Some Name
-	Contractor string `json:"contractor"` //     contractor: str  # Perevozshik
+	Contractor string `json:"contractor" db:"contractor"` //     contractor: str  # Perevozshik
 
 	// The state number of the transport that delivered the fuel
 	//
 	// required: true
 	// example: A902RUS
-	LicensePlate string `json:"license_plate"` //     license_plate: str   # GOS nomer
+	LicensePlate string `json:"license_plate" db:"license_plate"` //     license_plate: str   # GOS nomer
 
 	// Fuel loading status
 	//
 	// required: true
 	// example: Uploaded
-	Status string `json:"status"` //     status: str  # Zagruzgen
+	Status string `json:"status" db:"status"` //     status: str  # Zagruzgen
 
 	// The status of the fuel intake record in the database (changed or not)
 	//
 	// required: true
 	// example: false
-	BeenChanged bool `json:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
+	BeenChanged bool `json:"been_changed" db:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
 
 	// The global unique identifier of the record
 	//
 	// required: true
-	// example: false6F9619FF-8B86-D011-B42D-00CF4FC964F
-	GUID string `json:"guid"`
+	// example: 6F9619FF-8B86-D011-B42D-00CF4FC964F
+	GUID string `json:"guid" db:"guid"`
 }
