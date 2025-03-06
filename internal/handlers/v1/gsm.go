@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/maaw77/crmsrvg/internal/models"
 )
@@ -29,7 +30,7 @@ type _ struct {
 	//
 	// required: true
 	// in:path
-	DATE models.CrmDate `json:"date"`
+	DATE pgtype.Date `json:"date"`
 }
 
 // swagger:parameters paramGsmTableEntry
@@ -152,7 +153,7 @@ func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 
 	gsmEntry := models.GsmTableEntry{
 		ID:          12,
-		DtReceiving: models.CrmDate{Time: dt},
+		DtReceiving: pgtype.Date{Time: dt, Valid: true},
 		// Dt_crch : "",
 		Site:         "SITE_2",
 		IncomeKg:     562.20,

@@ -5,7 +5,9 @@ import (
 	"errors"
 	"strconv"
 	"testing"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/maaw77/crmsrvg/config"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
@@ -330,25 +332,34 @@ func TestAuxilTableProviders(t *testing.T) {
 }
 
 func TestInserGsmTable(t *testing.T) {
-	// dt, _ := time.Parse(time.DateOnly, "2024-01-02")
-	// tReceiving := models.CrmDate{Time: dt}
-	// gsmEntry := models.GsmTableEntry{
-	// 	ID:          12,
-	// 	DtReceiving: models.CrmDate{Time: dt},
-	// 	// Dt_crch : "",
-	// 	Site:         "SITE_2",
-	// 	IncomeKg:     562.20,
-	// 	Operator:     "OPERATOR_2",
-	// 	Provider:     "PROVIDER_2",
-	// 	Contractor:   "CONTRACTOR_2",
-	// 	LicensePlate: "A342RUS",
-	// 	Status:       "Uploaded",
-	// 	BeenChanged:  false,
-	// }
-	// t.Logf("gsmEntr=%v,\n dt=%s\n", gsmEntry, tReceiving)
-	// id, err := crmDB.InserGsmTable(context.Background(), gsmEntry)
-	// t.Log(id, err)
-	// t.Log(crmDB.DelRowGsmTable(context.Background(), 3))
+	dt, _ := time.Parse(time.DateOnly, "2025-03-05")
 
-	t.Log(crmDB.GetRowGsmTableId(context.Background(), 1))
+	gsmEntry := models.GsmTableEntry{
+		ID:          12,
+		DtReceiving: pgtype.Date{Time: dt, Valid: true},
+		// Dt_crch : "",
+		Site:         "SITE_2",
+		IncomeKg:     562.20,
+		Operator:     "OPERATOR_2",
+		Provider:     "PROVIDER_2",
+		Contractor:   "CONTRACTOR_2",
+		LicensePlate: "A342RUS",
+		Status:       "Uploaded",
+		BeenChanged:  false,
+		GUID:         "6F9619FF-8B86-D011-B42D-00CF4FC964F",
+	}
+	t.Logf("gsmEntr=%v\n ", gsmEntry)
+	id, err := crmDB.InserGsmTable(context.Background(), gsmEntry)
+	t.Log(id, err)
+
+}
+
+func TestGetRowGsmTableId(t *testing.T) {
+
+	t.Log(crmDB.GetRowGsmTableId(context.Background(), 4))
+}
+
+func TestGetRowGsmTableDtReceiving(t *testing.T) {
+	dt, _ := time.Parse(time.DateOnly, "2024-01-02")
+	t.Log(crmDB.GetRowGsmTableDtReceiving(context.Background(), pgtype.Date{Time: dt, Valid: true}))
 }
