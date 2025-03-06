@@ -1,36 +1,37 @@
 package models
 
 import (
-	"encoding/json"
-	"strings"
+	"fmt"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// CrmDate is a date  based on the specified layout (time.DateOnly = "2006-01-02")
-// swagger:strfmt date
-type CrmDate struct {
-	time.Time
-}
+// // CrmDate is a date  based on the specified layout (time.DateOnly = "2006-01-02")
+// // swagger:strfmt date
+// type CrmDate struct {
+// 	time.Time
+// }
 
-func (c *CrmDate) UnmarshalJSON(b []byte) (err error) {
-	inpS := strings.Trim(string(b), `"`)
-	if inpS == "" || inpS == "null" {
-		return nil
-	}
-	c.Time, err = time.Parse(time.DateOnly, inpS)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// func (c *CrmDate) UnmarshalJSON(b []byte) (err error) {
+// 	inpS := strings.Trim(string(b), `"`)
+// 	if inpS == "" || inpS == "null" {
+// 		return nil
+// 	}
+// 	c.Time, err = time.Parse(time.DateOnly, inpS)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
-func (c CrmDate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(c.Time.Format(time.DateOnly))
-}
+// func (c CrmDate) MarshalJSON() ([]byte, error) {
+// 	return json.Marshal(c.Time.Format(time.DateOnly))
+// }
 
-func (c CrmDate) String() string {
-	return c.Time.Format(time.DateOnly)
-}
+// func (c CrmDate) String() string {
+// 	return c.Time.Format(time.DateOnly)
+// }
 
 // func (c *CrmDate) UnmarshalBinary(data []byte) error {
 // 	return c.Time.UnmarshalBinary(data)
@@ -63,13 +64,13 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: 2024-01-02
-	DtReceiving CrmDate `json:"dt_receiving" db:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
+	DtReceiving pgtype.Date `json:"dt_receiving" db:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
 
 	// Fuel receiving  date
 	//
 	// required: false
 	// example: 2025-01-02
-	DtCrch CrmDate `json:"dt_crch,omitempty" db:"dt_crch"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
+	DtCrch pgtype.Date `json:"dt_crch,omitempty" db:"dt_crch"` //     dt_crch: datetime.date | str  # Data sozdaniya ili posledney pravki
 
 	// Name of the mining site
 	//
@@ -124,4 +125,22 @@ type GsmTableEntry struct {
 	// required: true
 	// example: 6F9619FF-8B86-D011-B42D-00CF4FC964F
 	GUID string `json:"guid" db:"guid"`
+}
+
+// It's Stringer interface (https://pkg.go.dev/fmt@go1.24.0#Stringer).
+func (g GsmTableEntry) String() string {
+	return fmt.Sprintf("{%d, %s, %s, %s, %.3f, %s, %s, %s, %s, %s, %v, %s}",
+		g.ID,
+		g.DtReceiving.Time.Format(time.DateOnly),
+		g.DtCrch.Time.Format(time.DateOnly),
+		g.Site,
+		g.IncomeKg,
+		g.Operator,
+		g.Provider,
+		g.Contractor,
+		g.LicensePlate,
+		g.Status,
+		g.BeenChanged,
+		g.GUID,
+	)
 }

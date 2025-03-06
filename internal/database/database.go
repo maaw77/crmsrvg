@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
@@ -216,7 +217,7 @@ func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bo
 	return
 }
 
-// GetRowGsmTableId returns the row with the sce the specified id from the GSM table.
+// GetRowGsmTableId returns the row with the specified id from the GSM table.
 func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (entryGsm models.GsmTableEntry, err error) {
 	statmentGetRow := `SELECT  gsm_table.id,
 						   	   gsm_table.dt_receiving,
@@ -254,15 +255,50 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (entryGsm mo
 		&entryGsm.GUID,
 	)
 
-	if err != nil {
-		return
-	}
+	// if err != nil {
+	// 	return
+	// }
 	// log.Println(row)
 	// entryGsm, err = pgx.CollectOneRow(row, pgx.RowToStructByName[models.GsmTableEntry])
 	// if err != nil {
 	// 	return
 	// }
-	return entryGsm, nil
+	// return entryGsm, nil
+
+	return
+}
+
+// GetRowGsmTableDtReceiving returns a row with the specified date of receipt from the GSM table.
+func (c *CrmDatabase) GetRowGsmTableDtReceiving(ctx context.Context, dtRec pgtype.Date) (entriesGsm []models.GsmTableEntry, err error) {
+	statmentGetRow := `SELECT  gsm_table.id,
+						   	   gsm_table.dt_receiving,
+							   gsm_table.dt_crch,
+							   gsm_table.been_changed,
+							   sites.name AS site,
+							   gsm_table.income_kg,
+							   operators.name AS operator,
+							   providers.name AS provider,
+							   contractors.name AS contractor,
+							   license_plates.name AS license_plate,
+							   statuses.name AS status,
+							   gsm_table.guid
+							   FROM gsm_table 
+							   JOIN sites ON gsm_table.site_id = sites.id
+							   JOIN operators ON gsm_table.operator_id = operators.id
+							   JOIN providers ON gsm_table.provider_id = providers.id
+							   JOIN contractors ON gsm_table.contractor_id = contractors.id
+							   JOIN license_plates ON gsm_table.license_plate_id = license_plates.id
+							   JOIN statuses ON gsm_table.status_id = statuses.id
+							   WHERE gsm_table.dt_receiving = $1;`
+
+	rows, err := c.dbpool.Query(ctx, statmentGetRow, dtRec)
+	if err != nil {
+		return
+	}
+
+	entriesGsm, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.GsmTableEntry])
+
+	return
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
