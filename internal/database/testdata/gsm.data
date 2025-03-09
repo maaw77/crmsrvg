@@ -1,0 +1,480 @@
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_5",
+
+"income_kg": 720.9102379582451,
+
+"operator": "Operator_1",
+
+"provider": "Provider_3",
+
+"contractor": "Contractor_3",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_1",
+
+"been_changed": false,
+
+"guid": "593ff941-405e-4afd-9eec-f8605a14351a"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_5",
+
+"income_kg": 93.04208631527334,
+
+"operator": "Operator_2",
+
+"provider": "Provider_3",
+
+"contractor": "Contractor_3",
+
+"license_plate": "LicensePlate_5",
+
+"status": "Status_1",
+
+"been_changed": true,
+
+"guid": "bd28d040-a6cd-460a-b2dc-4e03010ff3bd"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_4",
+
+"income_kg": 239.33984664534046,
+
+"operator": "Operator_4",
+
+"provider": "Provider_3",
+
+"contractor": "Contractor_3",
+
+"license_plate": "LicensePlate_5",
+
+"status": "Status_2",
+
+"been_changed": false,
+
+"guid": "96935cf8-06ee-421a-af26-8f720eb9bc39"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_2",
+
+"income_kg": 244.97722324195794,
+
+"operator": "Operator_2",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_3",
+
+"status": "Status_2",
+
+"been_changed": false,
+
+"guid": "d55cea18-33f1-4f5c-b5cf-ae4a20f07fa4"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_1",
+
+"income_kg": 618.2502779979188,
+
+"operator": "Operator_1",
+
+"provider": "Provider_5",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_1",
+
+"been_changed": false,
+
+"guid": "a5a73516-ba31-4702-b476-21bbb70b290e"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_2",
+
+"income_kg": 872.4940666377091,
+
+"operator": "Operator_3",
+
+"provider": "Provider_5",
+
+"contractor": "Contractor_5",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_5",
+
+"been_changed": false,
+
+"guid": "d11218a4-7d88-491d-a1dd-fac20d0c9fb8"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_1",
+
+"income_kg": 927.6591921064054,
+
+"operator": "Operator_3",
+
+"provider": "Provider_5",
+
+"contractor": "Contractor_1",
+
+"license_plate": "LicensePlate_5",
+
+"status": "Status_1",
+
+"been_changed": false,
+
+"guid": "d6e9d452-d83e-4ba9-b249-60d4e9be626b"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_1",
+
+"income_kg": 787.4205259455194,
+
+"operator": "Operator_1",
+
+"provider": "Provider_5",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_2",
+
+"been_changed": false,
+
+"guid": "b87a8b9a-d3d4-4db4-991a-7c042d9874a9"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_5",
+
+"income_kg": 558.5403869411153,
+
+"operator": "Operator_5",
+
+"provider": "Provider_4",
+
+"contractor": "Contractor_5",
+
+"license_plate": "LicensePlate_1",
+
+"status": "Status_2",
+
+"been_changed": false,
+
+"guid": "2536c61e-6082-405f-9a4d-fd1ad725c657"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_2",
+
+"income_kg": 908.2102905346869,
+
+"operator": "Operator_1",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_4",
+
+"been_changed": true,
+
+"guid": "05de127e-a43d-4553-b65e-46cc7ab7491b"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_1",
+
+"income_kg": 577.8606674115892,
+
+"operator": "Operator_5",
+
+"provider": "Provider_4",
+
+"contractor": "Contractor_5",
+
+"license_plate": "LicensePlate_1",
+
+"status": "Status_1",
+
+"been_changed": false,
+
+"guid": "4763a0c6-4590-4192-a155-c2e0748e7e62"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_5",
+
+"income_kg": 307.65562442968127,
+
+"operator": "Operator_1",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_3",
+
+"been_changed": true,
+
+"guid": "d51bba46-5d31-4b30-9a1e-e742a8b05eae"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_2",
+
+"income_kg": 572.2733720184885,
+
+"operator": "Operator_5",
+
+"provider": "Provider_1",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_4",
+
+"status": "Status_2",
+
+"been_changed": true,
+
+"guid": "45bad956-ec90-454e-80c2-ee1064afe47e"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_2",
+
+"income_kg": 744.4214567507421,
+
+"operator": "Operator_2",
+
+"provider": "Provider_3",
+
+"contractor": "Contractor_2",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_3",
+
+"been_changed": true,
+
+"guid": "9349183f-fa35-4996-9a22-4117dd7cf8b6"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_5",
+
+"income_kg": 588.0089950151637,
+
+"operator": "Operator_1",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_4",
+
+"license_plate": "LicensePlate_1",
+
+"status": "Status_5",
+
+"been_changed": true,
+
+"guid": "52615b18-5893-43f1-b7b6-f94d6854cced"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_2",
+
+"income_kg": 161.87533807687524,
+
+"operator": "Operator_1",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_1",
+
+"license_plate": "LicensePlate_1",
+
+"status": "Status_5",
+
+"been_changed": false,
+
+"guid": "865747bf-2cae-44d7-894f-9fc6d46afd1e"
+}
+{
+
+"dt_receiving": "2023-12-11",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_4",
+
+"income_kg": 469.43984031525844,
+
+"operator": "Operator_5",
+
+"provider": "Provider_1",
+
+"contractor": "Contractor_1",
+
+"license_plate": "LicensePlate_1",
+
+"status": "Status_3",
+
+"been_changed": false,
+
+"guid": "4529b031-5c53-4c6e-83b1-c030140e8b53"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_2",
+
+"income_kg": 967.2568554780064,
+
+"operator": "Operator_4",
+
+"provider": "Provider_2",
+
+"contractor": "Contractor_3",
+
+"license_plate": "LicensePlate_4",
+
+"status": "Status_5",
+
+"been_changed": false,
+
+"guid": "b29b993f-76e1-4c55-9cc2-a5a908b637e4"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "0001-01-01",
+
+"site": "Site_5",
+
+"income_kg": 837.9054200671579,
+
+"operator": "Operator_5",
+
+"provider": "Provider_1",
+
+"contractor": "Contractor_2",
+
+"license_plate": "LicensePlate_5",
+
+"status": "Status_3",
+
+"been_changed": false,
+
+"guid": "1a747407-3f07-4ff7-b0fe-3a8b170e3028"
+}
+{
+
+"dt_receiving": "2024-02-23",
+
+"dt_crch": "2025-02-11",
+
+"site": "Site_1",
+
+"income_kg": 224.17117483653493,
+
+"operator": "Operator_2",
+
+"provider": "Provider_4",
+
+"contractor": "Contractor_3",
+
+"license_plate": "LicensePlate_2",
+
+"status": "Status_1",
+
+"been_changed": true,
+
+"guid": "d3a905e7-8040-4625-abb1-c66c2184f0f4"
+}

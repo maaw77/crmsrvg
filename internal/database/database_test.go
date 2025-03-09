@@ -2,10 +2,16 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"os"
 	"strconv"
 	"testing"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/maaw77/crmsrvg/config"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
@@ -15,8 +21,67 @@ var (
 	POSTGRESQL_URL_BAD = "postgres://postgres:crmpasswordocalhost:5433/postgres?sslmode=disable&pool_max_conns=10"
 
 	// crmDB is the current instance of the CrmDatabase.
-	crmDB *CrmDatabase
+	crmDB         *CrmDatabase
+	gsmEntriesMap = make(map[int]models.GsmTableEntry)
 )
+
+func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
+
+	switch {
+	case a.ID != b.ID:
+		return false
+	case a.DtReceiving != b.DtReceiving:
+		return false
+	case a.DtCrch != b.DtCrch:
+		return false
+	case a.Site != b.Site:
+		return false
+	case fmt.Sprintf("%.3f", a.IncomeKg) != fmt.Sprintf("%.3f", b.IncomeKg):
+		return false
+	case a.Operator != b.Operator:
+		return false
+	case a.Provider != b.Provider:
+		return false
+	case a.Contractor != b.Contractor:
+		return false
+	case a.LicensePlate != b.LicensePlate:
+		return false
+	case a.Status != b.Status:
+		return false
+	case a.BeenChanged != b.BeenChanged:
+		return false
+	case a.GUID != b.GUID:
+		return false
+	}
+
+	return true
+}
+func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
+	// fmt.Println("###############################")
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+
+	for {
+		gsmE := models.GsmTableEntry{}
+		err = dec.Decode(&gsmE)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return
+		}
+
+		// log.Println(gsmE)
+		gsmEntries = append(gsmEntries, gsmE)
+	}
+
+	return gsmEntries, nil
+}
 
 func TestNewCrmDatabaseEmty(t *testing.T) {
 	if _, err := NewCrmDatabase(context.Background(), ""); !errors.Is(err, ErrConStrEmty) {
@@ -329,47 +394,89 @@ func TestAuxilTableProviders(t *testing.T) {
 	}
 }
 
-// func TestInserGsmTable(t *testing.T) {
-// 	dt, _ := time.Parse(time.DateOnly, "2025-03-05")
+func TestInserGsmTable(t *testing.T) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		t.Error(err)
+	}
+	// t.Log(pwd)
 
-// 	gsmEntry := models.GsmTableEntry{
-// 		ID:          0,
-// 		DtReceiving: pgtype.Date{Time: dt, Valid: true},
-// 		// Dt_crch : "",
-// 		Site:         "SITE_2",
-// 		IncomeKg:     562.20,
-// 		Operator:     "OPERATOR_2",
-// 		Provider:     "PROVIDER_2",
-// 		Contractor:   "CONTRACTOR_2",
-// 		LicensePlate: "A342RUS",
-// 		Status:       "Uploaded",
-// 		BeenChanged:  false,
-// 		GUID:         "6F9619FF-8B86-D011-B42D-00CF4FC964F",
-// 	}
-// 	t.Logf("gsmEntr=%v\n ", gsmEntry)
-// 	id, err := crmDB.InserGsmTable(context.Background(), gsmEntry)
-// 	t.Log(id, err)
-// }
+	gsmEntriesArr, err := readData(pwd + "/testdata/gsm.data")
+	if err != nil {
+		t.Fatalf("%s != nil", err)
+	}
+
+	// t.Log(gsmEntriesEqual(gsmEntriesArr[0], gsmEntriesArr[2]))
+
+	for _, gE := range gsmEntriesArr {
+		id, err := crmDB.InsertGsmTable(context.Background(), gE)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+			continue
+		}
+		gE.ID = id.ID
+		gsmEntriesMap[id.ID] = gE
+
+	}
+}
 
 func TestGetRowGsmTableId(t *testing.T) {
+	for k, v := range gsmEntriesMap {
 
-	g, err := crmDB.GetRowGsmTableId(context.Background(), 2)
-	t.Log(g, err)
+		gE, err := crmDB.GetRowGsmTableId(context.Background(), k)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+			continue
+		}
 
-	w, err := crmDB.GetRowGsmTableId(context.Background(), 2)
-	t.Log(w, err)
-	t.Log(g == w)
+		if !gsmEntriesEqual(v, gE) {
+			t.Errorf("%v != %v", v, gE)
+		}
 
-	w, err = crmDB.GetRowGsmTableId(context.Background(), 3)
-	t.Log(w, err)
-	t.Log(g == w)
-
-	w.ID = 2
-	t.Log(g == w)
+	}
 
 }
 
-// func TestGetRowGsmTableDtReceiving(t *testing.T) {
-// 	dt, _ := time.Parse(time.DateOnly, "2024-01-02")
-// 	t.Log(crmDB.GetRowGsmTableDtReceiving(context.Background(), pgtype.Date{Time: dt, Valid: true}))
-// }
+func TestGetRowGsmTableDtReceiving(t *testing.T) {
+	dR := map[string]int{}
+	for _, v := range gsmEntriesMap {
+		dR[v.DtReceiving.Time.Format(time.DateOnly)]++
+	}
+
+	for k, v := range dR {
+		tm, _ := time.Parse(time.DateOnly, k)
+		gsmEntries, err := crmDB.GetRowsGsmTableDtReceiving(context.Background(), pgtype.Date{Time: tm, Valid: true})
+		if err != nil {
+			t.Errorf("%s != nil", err)
+			continue
+		}
+		t.Log(len(gsmEntries), v)
+		if len(gsmEntries) != v {
+			t.Errorf("%d != %d", len(gsmEntries), v)
+		}
+	}
+}
+
+func TestDelRowGsmTable(t *testing.T) {
+	for k := range gsmEntriesMap {
+		b, err := crmDB.DelRowGsmTable(context.Background(), k)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+
+		}
+		if !b {
+			t.Errorf("%v != true", b)
+		}
+	}
+
+	for k := range gsmEntriesMap {
+		b, err := crmDB.DelRowGsmTable(context.Background(), k)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+
+		}
+		if b {
+			t.Errorf("%v != false", b)
+		}
+	}
+}
