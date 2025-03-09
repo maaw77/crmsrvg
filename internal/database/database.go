@@ -15,6 +15,7 @@ import (
 var (
 	// ErrConStrEmty occurs when argument function NewCrmDatabase is empty.
 	ErrConStrEmty = errors.New("connection string is empty")
+	ErrGuidExists = errors.New("guid exists")
 )
 
 // CrmDatabase is the storage for the CRM server.
@@ -142,7 +143,17 @@ func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx,
 }
 
 // InserGsmTable inserts a row into the Gsm table.
+// If a entry with the specified id exists, it does not insert the row and returns the entry id and an ErrGuidExists.
 func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
+
+	statmentGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
+
+	err = c.dbpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
+
+	if id.ID != 0 {
+		return id, ErrGuidExists
+	}
+
 	tx, err := c.dbpool.Begin(ctx)
 	if err != nil {
 		return

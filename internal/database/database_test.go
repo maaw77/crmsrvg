@@ -418,6 +418,20 @@ func TestInserGsmTable(t *testing.T) {
 		gsmEntriesMap[id.ID] = gE
 
 	}
+	// t.Log(gsmEntriesMap)
+
+	for k, v := range gsmEntriesMap {
+
+		id, err := crmDB.InsertGsmTable(context.Background(), v)
+		if k != id.ID {
+			t.Errorf("%d != %d", k, id.ID)
+		}
+		if !errors.Is(err, ErrGuidExists) {
+			t.Errorf("%v != %v", err, ErrGuidExists)
+		}
+
+	}
+	// t.Log(gsmEntriesMap)
 }
 
 func TestGetRowGsmTableId(t *testing.T) {
