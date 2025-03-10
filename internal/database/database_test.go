@@ -426,8 +426,8 @@ func TestInserGsmTable(t *testing.T) {
 		if k != id.ID {
 			t.Errorf("%d != %d", k, id.ID)
 		}
-		if !errors.Is(err, ErrGuidExists) {
-			t.Errorf("%v != %v", err, ErrGuidExists)
+		if !errors.Is(err, ErrExists) {
+			t.Errorf("%v != %v", err, ErrExists)
 		}
 
 	}
