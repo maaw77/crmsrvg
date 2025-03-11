@@ -56,7 +56,7 @@ type IdEntry struct {
 type GsmTableEntry struct {
 	// ID of the database entry
 	//
-	// required:true
+	// required:false
 	// min:1
 	ID int `json:"id,omitempty" db:"id"`
 

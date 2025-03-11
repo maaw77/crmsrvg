@@ -15,6 +15,7 @@ import (
 var (
 	// ErrConStrEmty occurs when argument function NewCrmDatabase is empty.
 	ErrConStrEmty = errors.New("connection string is empty")
+	ErrExists     = errors.New("it already exists")
 )
 
 // CrmDatabase is the storage for the CRM server.
@@ -39,6 +40,7 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
 	}
+
 	return
 }
 
@@ -142,12 +144,22 @@ func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx,
 }
 
 // InserGsmTable inserts a row into the Gsm table.
-func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
+// If a entry with the specified id exists, it does not insert the row and returns the entry id and an ErrGuidExists.
+func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
+
+	statmentGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
+
+	err = c.dbpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
+
+	if id.ID != 0 {
+		return id, ErrExists
+	}
+
 	tx, err := c.dbpool.Begin(ctx)
 	if err != nil {
 		return
 	}
-	defer tx.Rollback(context.Background())
+	defer tx.Rollback(context.TODO())
 
 	statmentCreateGsmRow := `INSERT INTO gsm_table (id, 
                                             dt_receiving,
@@ -213,12 +225,15 @@ func (c *CrmDatabase) InserGsmTable(ctx context.Context, gsmEntry models.GsmTabl
 func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bool, err error) {
 	// statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", "gsm_table")
 	comT, err := c.dbpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
+	if err != nil {
+		return false, err
+	}
 	statusExec = comT.RowsAffected() == 1
 	return
 }
 
 // GetRowGsmTableId returns the row with the specified id from the GSM table.
-func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (entryGsm models.GsmTableEntry, err error) {
+func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry models.GsmTableEntry, err error) {
 	statmentGetRow := `SELECT  gsm_table.id,
 						   	   gsm_table.dt_receiving,
 							   gsm_table.dt_crch,
@@ -241,18 +256,18 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (entryGsm mo
 							   WHERE gsm_table.id = $1;`
 
 	err = c.dbpool.QueryRow(ctx, statmentGetRow, id).Scan(
-		&entryGsm.ID,
-		&entryGsm.DtReceiving,
-		&entryGsm.DtCrch,
-		&entryGsm.BeenChanged,
-		&entryGsm.Site,
-		&entryGsm.IncomeKg,
-		&entryGsm.Operator,
-		&entryGsm.Provider,
-		&entryGsm.Contractor,
-		&entryGsm.LicensePlate,
-		&entryGsm.Status,
-		&entryGsm.GUID,
+		&gsmEntry.ID,
+		&gsmEntry.DtReceiving,
+		&gsmEntry.DtCrch,
+		&gsmEntry.BeenChanged,
+		&gsmEntry.Site,
+		&gsmEntry.IncomeKg,
+		&gsmEntry.Operator,
+		&gsmEntry.Provider,
+		&gsmEntry.Contractor,
+		&gsmEntry.LicensePlate,
+		&gsmEntry.Status,
+		&gsmEntry.GUID,
 	)
 
 	// if err != nil {
@@ -269,7 +284,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (entryGsm mo
 }
 
 // GetRowGsmTableDtReceiving returns a row with the specified date of receipt from the GSM table.
-func (c *CrmDatabase) GetRowGsmTableDtReceiving(ctx context.Context, dtRec pgtype.Date) (entriesGsm []models.GsmTableEntry, err error) {
+func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgtype.Date) (gsmEntries []models.GsmTableEntry, err error) {
 	statmentGetRow := `SELECT  gsm_table.id,
 						   	   gsm_table.dt_receiving,
 							   gsm_table.dt_crch,
@@ -296,9 +311,50 @@ func (c *CrmDatabase) GetRowGsmTableDtReceiving(ctx context.Context, dtRec pgtyp
 		return
 	}
 
-	entriesGsm, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.GsmTableEntry])
+	gsmEntries, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.GsmTableEntry])
 
 	return
+}
+
+// AddUser adds the user to the database.
+func (c *CrmDatabase) AddUser(ctx context.Context, user models.User) (id models.IdEntry, err error) {
+	statmentInsert := `INSERT INTO users (id,
+										  username,
+										  password,
+										  admin) 
+										  VALUES (DEFAULT, $1, $2, $3)
+										  RETURNING id;
+										`
+	statmentGet := `SELECT id FROM users WHERE username = $1;`
+
+	c.dbpool.QueryRow(ctx, statmentGet, user.Username).Scan(&id.ID)
+
+	if id.ID != 0 {
+		return id, ErrExists
+	}
+
+	err = c.dbpool.QueryRow(ctx, statmentInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
+	return
+}
+
+// GetUser returns the registered user from the database.
+func (c *CrmDatabase) GetUser(ctx context.Context, usermame string) (user models.User, err error) {
+	statmentGet := `SELECT id, username, password, admin FROM users WHERE username = $1;`
+	if err = c.dbpool.QueryRow(ctx, statmentGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
+		return user, nil
+	}
+
+	return user, nil
+}
+
+func (c *CrmDatabase) DelUser(ctx context.Context, id int) (statusExec bool, err error) {
+
+	comT, err := c.dbpool.Exec(ctx, "DELETE FROM users WHERE id = $1;", id)
+	if err != nil {
+		return false, err
+	}
+
+	return comT.RowsAffected() == 1, nil
 }
 
 // NewCrmDatabase allocates and returns a new CrmDatabase.
