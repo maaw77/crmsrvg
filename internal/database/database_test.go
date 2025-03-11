@@ -102,11 +102,11 @@ func TestPoolDbPing(t *testing.T) {
 	if err != nil {
 		t.Errorf("%s != nil", err)
 	}
-	if err := crmDB.dbpool.Ping(context.Background()); err != nil {
+	if err := crmDB.DBpool.Ping(context.Background()); err != nil {
 		t.Errorf("%s != nil", err)
 	}
 
-	t.Logf("%#v\n", crmDB.dbpool.Config().ConnString())
+	t.Logf("%#v\n", crmDB.DBpool.Config().ConnString())
 }
 
 func TestAuxilTableSites(t *testing.T) {

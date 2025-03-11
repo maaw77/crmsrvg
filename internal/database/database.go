@@ -20,12 +20,12 @@ var (
 
 // CrmDatabase is the storage for the CRM server.
 type CrmDatabase struct {
-	dbpool *pgxpool.Pool
+	DBpool *pgxpool.Pool
 }
 
 // createPool creates a new Pool.
 func (c *CrmDatabase) createPool(ctx context.Context, config *pgxpool.Config) (err error) {
-	c.dbpool, err = pgxpool.NewWithConfig(ctx, config)
+	c.DBpool, err = pgxpool.NewWithConfig(ctx, config)
 	return
 }
 
@@ -35,10 +35,10 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 	statmentGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
 	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
 
-	err = c.dbpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
+	err = c.DBpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		err = c.dbpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+		err = c.DBpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
 	}
 
 	return
@@ -48,7 +48,7 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 // otherwise statusExe==false.
 func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id int) (statusExec bool, err error) {
 	statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", nameTable)
-	comT, err := c.dbpool.Exec(ctx, statmentDel, id)
+	comT, err := c.DBpool.Exec(ctx, statmentDel, id)
 	statusExec = comT.RowsAffected() == 1
 	return
 }
@@ -149,13 +149,13 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 
 	statmentGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
 
-	err = c.dbpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
+	err = c.DBpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
 
 	if id.ID != 0 {
 		return id, ErrExists
 	}
 
-	tx, err := c.dbpool.Begin(ctx)
+	tx, err := c.DBpool.Begin(ctx)
 	if err != nil {
 		return
 	}
@@ -224,7 +224,7 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 // otherwise statusExe==false.
 func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bool, err error) {
 	// statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", "gsm_table")
-	comT, err := c.dbpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
+	comT, err := c.DBpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
 	if err != nil {
 		return false, err
 	}
@@ -255,7 +255,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.id = $1;`
 
-	err = c.dbpool.QueryRow(ctx, statmentGetRow, id).Scan(
+	err = c.DBpool.QueryRow(ctx, statmentGetRow, id).Scan(
 		&gsmEntry.ID,
 		&gsmEntry.DtReceiving,
 		&gsmEntry.DtCrch,
@@ -306,7 +306,7 @@ func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgty
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.dt_receiving = $1;`
 
-	rows, err := c.dbpool.Query(ctx, statmentGetRow, dtRec)
+	rows, err := c.DBpool.Query(ctx, statmentGetRow, dtRec)
 	if err != nil {
 		return
 	}
@@ -327,20 +327,20 @@ func (c *CrmDatabase) AddUser(ctx context.Context, user models.User) (id models.
 										`
 	statmentGet := `SELECT id FROM users WHERE username = $1;`
 
-	c.dbpool.QueryRow(ctx, statmentGet, user.Username).Scan(&id.ID)
+	c.DBpool.QueryRow(ctx, statmentGet, user.Username).Scan(&id.ID)
 
 	if id.ID != 0 {
 		return id, ErrExists
 	}
 
-	err = c.dbpool.QueryRow(ctx, statmentInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
+	err = c.DBpool.QueryRow(ctx, statmentInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
 	return
 }
 
 // GetUser returns the registered user from the database.
 func (c *CrmDatabase) GetUser(ctx context.Context, usermame string) (user models.User, err error) {
 	statmentGet := `SELECT id, username, password, admin FROM users WHERE username = $1;`
-	if err = c.dbpool.QueryRow(ctx, statmentGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
+	if err = c.DBpool.QueryRow(ctx, statmentGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
 		return user, nil
 	}
 
@@ -349,7 +349,7 @@ func (c *CrmDatabase) GetUser(ctx context.Context, usermame string) (user models
 
 func (c *CrmDatabase) DelUser(ctx context.Context, id int) (statusExec bool, err error) {
 
-	comT, err := c.dbpool.Exec(ctx, "DELETE FROM users WHERE id = $1;", id)
+	comT, err := c.DBpool.Exec(ctx, "DELETE FROM users WHERE id = $1;", id)
 	if err != nil {
 		return false, err
 	}

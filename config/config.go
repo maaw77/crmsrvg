@@ -16,7 +16,7 @@ import (
 // a deadline for waiting for the server to shut down.
 func InitConfigServer(pathConfig string) (*http.Server, time.Duration) {
 	dir, file := filepath.Split(pathConfig)
-	log.Println(dir, file)
+	// log.Println(dir, file)
 	fileName := strings.Split(file, ".")[0]
 
 	// Setting default values for the server and the deadline.
@@ -51,7 +51,7 @@ func InitConfigServer(pathConfig string) (*http.Server, time.Duration) {
 // in datebase.NewCrmDatabase.
 func InitConnString(pathConfig string) (connString string) {
 	dir, file := filepath.Split(pathConfig)
-	log.Println(dir, file)
+	// log.Println(dir, file)
 	fileName := strings.Split(file, ".")[0]
 
 	// Setting default values for the connection string.
