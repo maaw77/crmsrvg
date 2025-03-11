@@ -40,8 +40,8 @@ type _ struct {
 	Body models.GsmTableEntry
 }
 
-// gsmTable this defines a structure with configured data storage and request handlers.
-type gsmTable struct {
+// GsmTable this defines a structure with configured data storage and request handlers.
+type GsmTable struct {
 	db string
 }
 
@@ -59,7 +59,7 @@ type gsmTable struct {
 // 		400:ErrorMessage
 
 // addEntryGsm adds an entry to the GSM table.
-func (g *gsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
+func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
 	var gsmEntry models.GsmTableEntry
@@ -92,7 +92,7 @@ func (g *gsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 // 		404:ErrorMessage
 
 // getEntryGsm receives an entry with a specified ID from the GSM table.
-func (g *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
+func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -124,7 +124,7 @@ func (g *gsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 // 		404:ErrorMessage
 
 // getEntryGsm receives an entry with a specified date from the GSM table.
-func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
+func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -169,6 +169,6 @@ func (g *gsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 }
 
 // newGsmTable allocates and returns a new gsmTable.
-func newGsmTable() *gsmTable {
-	return &gsmTable{db: "Hello Hugo boss!!!!!"}
+func newGsmTable() *GsmTable {
+	return &GsmTable{db: "Hello Hugo boss!!!!!"}
 }

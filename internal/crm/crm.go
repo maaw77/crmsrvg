@@ -37,7 +37,7 @@ func Run(pathConfig string) {
 
 	// Creating a router and registering handlers.
 	r := mux.NewRouter()
-	handlers.RegHanlders(r)
+	handlers.RegGsmHanlders(r)
 
 	srv, wait := config.InitConfigServer(pathConfig)
 	srv.Handler = r

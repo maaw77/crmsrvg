@@ -95,8 +95,8 @@ func methodNotAllowed(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// RegHanlders registers handlers according to their URLs.
-func RegHanlders(rMux *mux.Router) {
+// RegGsmHanlders registers handlers according to their URLs.
+func RegGsmHanlders(rMux *mux.Router) {
 	log.Println("Starting registration of URLs and handlers")
 
 	rMux.NotFoundHandler = http.HandlerFunc(defaultHandler)
