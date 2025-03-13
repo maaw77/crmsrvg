@@ -6,10 +6,12 @@ package crm
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 
 	"github.com/maaw77/crmsrvg/config"
@@ -26,7 +28,7 @@ func Run(pathConfig string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	crmDB, err := database.NewCrmDatabase(ctx, config.InitConnString(""))
+	crmDB, err := database.NewCrmDatabase(ctx, config.InitConnString(pathConfig))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -37,7 +39,22 @@ func Run(pathConfig string) {
 
 	// Creating a router and registering handlers.
 	r := mux.NewRouter()
-	handlers.RegGsmHanlders(r)
+
+	r.NotFoundHandler = http.HandlerFunc(handlers.DefaultHandler)
+	r.MethodNotAllowedHandler = http.HandlerFunc(handlers.MethodNotAllowed)
+
+	apiR := r.PathPrefix("/api/v1").Subrouter()
+
+	docR := apiR.Methods(http.MethodGet).Subrouter()
+	opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	docR.Handle("/docs/", sh)
+	docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
+
+	// Uesrs
+	handlers.RegUsersHanlders(apiR, crmDB)
+	// GSM
+	handlers.RegGsmHanlders(apiR)
 
 	srv, wait := config.InitConfigServer(pathConfig)
 	srv.Handler = r
