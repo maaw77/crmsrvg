@@ -55,6 +55,9 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
+		if err := enc.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
