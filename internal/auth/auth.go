@@ -23,7 +23,7 @@ func GetToken(username string, timeExp int64) (tokenString string, err error) {
 
 func VerifyToken(tokenString string) (token *jwt.Token, err error) {
 
-	token, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err = jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		return mySigningKey, nil
 	})
 

@@ -15,7 +15,8 @@ import (
 var (
 	// ErrConStrEmty occurs when argument function NewCrmDatabase is empty.
 	ErrConStrEmty = errors.New("connection string is empty")
-	ErrExists     = errors.New("it already exists")
+	ErrExist      = errors.New("it already exists")
+	ErrNotExist   = errors.New("it doesn't exist")
 )
 
 // CrmDatabase is the storage for the CRM server.
@@ -152,7 +153,7 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 	err = c.DBpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
 
 	if id.ID != 0 {
-		return id, ErrExists
+		return id, ErrExist
 	}
 
 	tx, err := c.DBpool.Begin(ctx)
@@ -330,7 +331,7 @@ func (c *CrmDatabase) AddUser(ctx context.Context, user models.User) (id models.
 	c.DBpool.QueryRow(ctx, statmentGet, user.Username).Scan(&id.ID)
 
 	if id.ID != 0 {
-		return id, ErrExists
+		return id, ErrExist
 	}
 
 	err = c.DBpool.QueryRow(ctx, statmentInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
@@ -341,7 +342,10 @@ func (c *CrmDatabase) AddUser(ctx context.Context, user models.User) (id models.
 func (c *CrmDatabase) GetUser(ctx context.Context, usermame string) (user models.User, err error) {
 	statmentGet := `SELECT id, username, password, admin FROM users WHERE username = $1;`
 	if err = c.DBpool.QueryRow(ctx, statmentGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
-		return user, nil
+		if errors.Is(err, pgx.ErrNoRows) {
+			return user, ErrNotExist
+		}
+		return user, err
 	}
 
 	return user, nil

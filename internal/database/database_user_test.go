@@ -2,12 +2,13 @@ package database
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
-func TestUser(t *testing.T) {
+func subtUserTable(t *testing.T) {
 	user := models.User{Username: "Vasya", Password: "abracadabra"}
 	id, err := crmDB.AddUser(context.Background(), user)
 	if err != nil {
@@ -16,8 +17,8 @@ func TestUser(t *testing.T) {
 	t.Logf("id = %d", id.ID)
 
 	id, err = crmDB.AddUser(context.Background(), user)
-	if err != ErrExists {
-		t.Errorf("%s != %s", err, ErrExists)
+	if err != ErrExist {
+		t.Errorf("%s != %s", err, ErrExist)
 	}
 
 	userGet, err := crmDB.GetUser(context.Background(), user.Username)
@@ -51,4 +52,11 @@ func TestUser(t *testing.T) {
 	if s {
 		t.Errorf("%v != false", s)
 	}
+
+	_, err = crmDB.GetUser(context.Background(), user.Username)
+
+	if !errors.Is(err, ErrNotExist) {
+		t.Errorf("%s != %s", err, ErrNotExist)
+	}
+
 }
