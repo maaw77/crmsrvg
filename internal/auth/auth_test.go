@@ -25,7 +25,16 @@ func TestGetToken(t *testing.T) {
 }
 
 func TestVerifyToken(t *testing.T) {
-	token, err := VerifyToken(tokenString)
+	token, err := VerifyToken("tokenString")
+	if err == nil {
+		t.Fatalf("%s != nil", err)
+	}
+
+	if token != nil {
+		t.Logf("%v != nil", token)
+	}
+
+	token, err = VerifyToken(tokenString)
 	if err != nil {
 		t.Fatalf("%s != nil", err)
 	}
