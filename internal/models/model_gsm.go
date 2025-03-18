@@ -58,13 +58,13 @@ type GsmTableEntry struct {
 	//
 	// required:false
 	// min:1
-	ID int `json:"id,omitempty" db:"id"`
+	ID int `json:"id,omitempty" db:"id" `
 
 	// Fuel receiving date
 	//
 	// required: true
 	// example: 2024-01-02
-	DtReceiving pgtype.Date `json:"dt_receiving" db:"dt_receiving"` //     dt_receiving: datetime.date | str  # Data priemki
+	DtReceiving pgtype.Date `json:"dt_receiving" db:"dt_receiving" validate:"required"` //     dt_receiving: datetime.date | str  # Data priemki
 
 	// Fuel receiving  date
 	//
@@ -76,55 +76,55 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: Some Name
-	Site string `json:"site" db:"site"` //     site: str  # Uchastok
+	Site string `json:"site" db:"site" validate:"required"` //     site: str  # Uchastok
 
 	// The amount of fuel received at the warehouse in kilograms
 	//
 	// required: true
 	// example: 362.20
-	IncomeKg float64 `json:"income_kg" db:"income_kg"` //     income_kg: float   # Prinyato v kg
+	IncomeKg float64 `json:"income_kg" db:"income_kg" validate:"required"` //     income_kg: float   # Prinyato v kg
 
 	// Last name of the operator who took the fuel to the warehouse
 	//
 	// required: true
 	// example: Some Last name
-	Operator string `json:"operator" db:"operator"` //     operator: str  # Operator
+	Operator string `json:"operator" db:"operator" validate:"required"` //     operator: str  # Operator
 
 	// Name of the fuel provider
 	//
 	// required: true
 	// example: Some Name
-	Provider string `json:"provider" db:"provider"` //     provider: str  # Postavshik
+	Provider string `json:"provider" db:"provider" validate:"required"` //     provider: str  # Postavshik
 
 	// Name of the fuel carrier
 	//
 	// required: true
 	// example: Some Name
-	Contractor string `json:"contractor" db:"contractor"` //     contractor: str  # Perevozshik
+	Contractor string `json:"contractor" db:"contractor" validate:"required"` //     contractor: str  # Perevozshik
 
 	// The state number of the transport that delivered the fuel
 	//
 	// required: true
 	// example: A902RUS
-	LicensePlate string `json:"license_plate" db:"license_plate"` //     license_plate: str   # GOS nomer
+	LicensePlate string `json:"license_plate" db:"license_plate" validate:"required"` //     license_plate: str   # GOS nomer
 
 	// Fuel loading status
 	//
 	// required: true
 	// example: Uploaded
-	Status string `json:"status" db:"status"` //     status: str  # Zagruzgen
+	Status string `json:"status" db:"status" validate:"required"` //     status: str  # Zagruzgen
 
 	// The status of the fuel intake record in the database (changed or not)
 	//
 	// required: true
 	// example: false
-	BeenChanged bool `json:"been_changed" db:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
+	BeenChanged bool `json:"been_changed" db:"been_changed" validate:"required"` //     been_changed: bool   # table_color = '#f7fcc5' = T
 
 	// The global unique identifier of the record
 	//
 	// required: true
 	// example: 6F9619FF-8B86-D011-B42D-00CF4FC964F
-	GUID string `json:"guid" db:"guid"`
+	GUID string `json:"guid" db:"guid" validate:"required,uuid"`
 }
 
 // It's Stringer interface (https://pkg.go.dev/fmt@go1.24.0#Stringer).
