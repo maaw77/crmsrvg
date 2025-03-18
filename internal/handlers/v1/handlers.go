@@ -101,8 +101,8 @@ func RegGsmHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 
 	gsmT := newGsmTable(srg)
 
-	gsmR := rMux.PathPrefix("/gsm_table").Subrouter()
-	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
+	gsmR := rMux.PathPrefix("/gsm").Subrouter()
+	gsmR.Methods("POST").HandlerFunc(gsmT.addEntryGsm)
 	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
 	gsmR.HandleFunc("/date/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods("GET")
 

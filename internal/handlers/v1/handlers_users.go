@@ -30,12 +30,11 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("regUser Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
 
-	var user models.User
-
 	enc := json.NewEncoder(w)
 
+	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("error = ", err)
+		log.Println("error= ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
 			log.Println(err)
@@ -44,7 +43,7 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := u.validate.Struct(&user); err != nil {
-		log.Println("error = ", err)
+		log.Println("error= ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
 			log.Println(err)

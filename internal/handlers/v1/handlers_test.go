@@ -38,3 +38,21 @@ func TestUsers(t *testing.T) {
 		crmDB.DelUser(context.Background(), id)
 	}
 }
+
+func TestGsm(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	var err error
+
+	crmDB, err = database.NewCrmDatabase(ctx, config.InitConnString(""))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := crmDB.DBpool.Ping(ctx); err != nil {
+		t.Fatal(err)
+	}
+	defer crmDB.DBpool.Close()
+
+	t.Run("BadReq", subtAddEntryBadReq)
+}

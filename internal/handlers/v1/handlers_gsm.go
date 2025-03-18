@@ -64,21 +64,30 @@ type GsmTable struct {
 // addEntryGsm adds an entry to the GSM table.
 func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
-
-	var gsmEntry models.GsmTableEntry
-	dec := json.NewDecoder(r.Body)
-
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := dec.Decode(&gsmEntry); err != nil {
+	enc := json.NewEncoder(w)
+
+	var gsmEntry models.GsmTableEntry
+	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
 		log.Println("error= ", err)
 		w.WriteHeader(http.StatusBadRequest)
-		body := fmt.Sprintf(`{"details": "%s"}`, err)
-		fmt.Fprintf(w, "%s", body)
+		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
+			log.Println(err)
+		}
+		return
+
+	}
+
+	if err := g.validate.Struct(&gsmEntry); err != nil {
+		log.Println("error= ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := enc.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", gsmEntry)
 }
 
 // swagger:route GET /gsm_table/id/{id} GSM paramIdEntry
