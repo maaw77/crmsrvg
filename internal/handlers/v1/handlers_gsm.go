@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	db "github.com/maaw77/crmsrvg/internal/database"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
@@ -42,7 +44,8 @@ type _ struct {
 
 // GsmTable this defines a structure with configured data storage and request handlers.
 type GsmTable struct {
-	db string
+	storage  *db.CrmDatabase
+	validate *validator.Validate
 }
 
 // swagger:route POST /gsm_table GSM paramGsmTableEntry
@@ -68,7 +71,7 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := dec.Decode(&gsmEntry); err != nil {
-		log.Println(err)
+		log.Println("error= ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		body := fmt.Sprintf(`{"details": "%s"}`, err)
 		fmt.Fprintf(w, "%s", body)
@@ -169,6 +172,8 @@ func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 }
 
 // newGsmTable allocates and returns a new gsmTable.
-func newGsmTable() *GsmTable {
-	return &GsmTable{db: "Hello Hugo boss!!!!!"}
+func newGsmTable(srg *db.CrmDatabase) *GsmTable {
+	return &GsmTable{storage: srg,
+		validate: validator.New(validator.WithRequiredStructEnabled()),
+	}
 }

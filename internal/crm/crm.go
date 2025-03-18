@@ -54,7 +54,7 @@ func Run(pathConfig string) {
 	// Uesrs
 	handlers.RegUsersHanlders(apiR, crmDB)
 	// GSM
-	handlers.RegGsmHanlders(apiR)
+	handlers.RegGsmHanlders(apiR, crmDB)
 
 	srv, wait := config.InitConfigServer(pathConfig)
 	srv.Handler = r

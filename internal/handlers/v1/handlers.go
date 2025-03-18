@@ -96,10 +96,10 @@ func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegGsmHanlders registers handlers according to their URLs.
-func RegGsmHanlders(rMux *mux.Router) {
+func RegGsmHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 	log.Println("starting registration of URLs and handlers for GSM")
 
-	gsmT := newGsmTable()
+	gsmT := newGsmTable(srg)
 
 	gsmR := rMux.PathPrefix("/gsm_table").Subrouter()
 	gsmR.HandleFunc("/", gsmT.addEntryGsm).Methods("POST")
