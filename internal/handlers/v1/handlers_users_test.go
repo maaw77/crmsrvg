@@ -46,6 +46,7 @@ func subtRegUeser(t *testing.T) {
 
 	}
 
+	// If the user already exist.
 	for i, v := range uesers {
 		b, err := json.Marshal(v)
 		if err != nil {
@@ -75,11 +76,39 @@ func subtRegUeser(t *testing.T) {
 
 	}
 
+	// If the username and/or password is not specified(empty).
+	uesers = []models.User{{Username: "User_3", Password: ""},
+		{Username: "", Password: "Password_dedde", Admin: true},
+	}
+	for _, v := range uesers {
+		b, err := json.Marshal(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// t.Logf("%s", b)
+		r := httptest.NewRequest("POST", "/reguser", bytes.NewReader(b))
+		w := httptest.NewRecorder()
+		handlers := http.HandlerFunc(uT.regUser)
+		handlers.ServeHTTP(w, r)
+
+		// Check the HTTP status code is what we expect.
+		if status := w.Code; status != http.StatusBadRequest {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
+			return
+		}
+
+		errD := ErrorMessage{}
+		// t.Log(w.Body.String())
+		json.NewDecoder(w.Body).Decode(&errD)
+		t.Log(errD)
+	}
 }
 
 func subtLoginUsers(t *testing.T) {
 	uT := newUsersTable(crmDB)
 
+	// If everything is ok.
 	uesers := []models.User{{Username: "User_1", Password: "Password_1"},
 		{Username: "User_2", Password: "Password_2", Admin: true},
 	}
@@ -196,4 +225,33 @@ func subtLoginUsers(t *testing.T) {
 		}
 
 	}
+
+	// If the username and/or password is not specified(empty).
+	uesers = []models.User{{Username: "User_3", Password: ""},
+		{Username: "", Password: "Password_dedde", Admin: true},
+	}
+	for _, v := range uesers {
+		b, err := json.Marshal(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// t.Logf("%s", b)
+		r := httptest.NewRequest("POST", "/reguser", bytes.NewReader(b))
+		w := httptest.NewRecorder()
+		handlers := http.HandlerFunc(uT.regUser)
+		handlers.ServeHTTP(w, r)
+
+		// Check the HTTP status code is what we expect.
+		if status := w.Code; status != http.StatusBadRequest {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
+			return
+		}
+
+		errD := ErrorMessage{}
+		// t.Log(w.Body.String())
+		json.NewDecoder(w.Body).Decode(&errD)
+		t.Log(errD)
+	}
+
 }

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/maaw77/crmsrvg/internal/auth"
 	db "github.com/maaw77/crmsrvg/internal/database"
 	"github.com/maaw77/crmsrvg/internal/models"
@@ -20,7 +21,8 @@ type AccessToken struct {
 }
 
 type UsersTable struct {
-	storage *db.CrmDatabase
+	storage  *db.CrmDatabase
+	validate *validator.Validate
 }
 
 // getEntryGsm receives an entry with a specified date from the GSM table.
@@ -33,6 +35,15 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		log.Println("error = ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
+	if err := u.validate.Struct(&user); err != nil {
 		log.Println("error = ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
@@ -82,6 +93,15 @@ func (u *UsersTable) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := u.validate.Struct(&user); err != nil {
+		log.Println("error = ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
 	userReg, err := u.storage.GetUser(r.Context(), user.Username)
 	switch {
 	case errors.Is(err, db.ErrNotExist):
@@ -116,5 +136,7 @@ func (u *UsersTable) loginUser(w http.ResponseWriter, r *http.Request) {
 
 // newGsmTable allocates and returns a new gsmTable.
 func newUsersTable(srg *db.CrmDatabase) *UsersTable {
-	return &UsersTable{storage: srg}
+	return &UsersTable{storage: srg,
+		validate: validator.New(validator.WithRequiredStructEnabled()),
+	}
 }

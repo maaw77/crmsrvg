@@ -12,16 +12,16 @@ type User struct {
 	//
 	// required: true
 	// example: Some username
-	Username string `json:"username" db:"username"`
+	Username string `json:"username" db:"username" validate:"required"`
 
 	// Password of a a registered user
 	//
 	// required: true
 	// example: my_password
-	Password string `json:"password" db:"password"`
+	Password string `json:"password" db:"password" validate:"required"`
 
 	// User's status
 	// required: false
 	// example: true (for admin)
-	Admin bool `json:"admin,omitempty" db:"admin"`
+	Admin bool `json:"admin,omitempty" db:"admin" `
 }
