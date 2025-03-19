@@ -11,6 +11,7 @@ import (
 
 var (
 	idUsers = []int{}
+	idGsm   = []int{}
 	crmDB   *database.CrmDatabase
 )
 
@@ -55,4 +56,8 @@ func TestGsm(t *testing.T) {
 	defer crmDB.DBpool.Close()
 
 	t.Run("BadReq", subtAddEntryBadReq)
+	t.Run("GoodReq", subtAddEntryGoodReq)
+	for _, id := range idGsm {
+		crmDB.DelRowGsmTable(context.Background(), id)
+	}
 }

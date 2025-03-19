@@ -118,7 +118,7 @@ type GsmTableEntry struct {
 	//
 	// required: true
 	// example: false
-	BeenChanged bool `json:"been_changed" db:"been_changed" validate:"required"` //     been_changed: bool   # table_color = '#f7fcc5' = T
+	BeenChanged bool `json:"been_changed" db:"been_changed"` //     been_changed: bool   # table_color = '#f7fcc5' = T
 
 	// The global unique identifier of the record
 	//

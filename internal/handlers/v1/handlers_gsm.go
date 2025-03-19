@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -70,22 +71,44 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 
 	var gsmEntry models.GsmTableEntry
 	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
-		log.Println("error= ", err)
+		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
-			log.Println(err)
+			log.Println("error!: ", err)
 		}
 		return
 
 	}
 
 	if err := g.validate.Struct(&gsmEntry); err != nil {
-		log.Println("error= ", err)
+		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
+			log.Println("error: ", err)
+		}
+		return
+	}
+
+	id, err := g.storage.InsertGsmTable(r.Context(), gsmEntry)
+	if errors.Is(err, db.ErrExist) {
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := enc.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s, id=%d) already exists", gsmEntry.GUID, id.ID)}); err != nil {
 			log.Println(err)
 		}
 		return
+	} else if err != nil {
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := enc.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := enc.Encode(id); err != nil {
+		log.Println("error: ", err)
 	}
 
 }
@@ -112,9 +135,9 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 
 	id, ok := mux.Vars(r)["id"]
 	if !ok {
-		log.Println("ID value not set!")
+		log.Println("erroror: id value not set!")
 		w.WriteHeader(http.StatusNotFound)
-		encod.Encode(&ErrorMessage{Details: "ID value not set!"})
+		encod.Encode(&ErrorMessage{Details: "id value not set!"})
 		return
 	}
 

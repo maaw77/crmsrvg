@@ -113,6 +113,7 @@ func subtInserGsmTable(t *testing.T) {
 }
 
 func subtGetRowGsmTableId(t *testing.T) {
+	var maxId int
 	for k, v := range gsmEntriesMap {
 
 		gE, err := crmDB.GetRowGsmTableId(context.Background(), k)
@@ -124,7 +125,13 @@ func subtGetRowGsmTableId(t *testing.T) {
 		if !gsmEntriesEqual(v, gE) {
 			t.Errorf("%v != %v", v, gE)
 		}
-
+		if k > maxId {
+			maxId = k + 1
+		}
+	}
+	_, err := crmDB.GetRowGsmTableId(context.Background(), maxId)
+	if err != ErrNotExist {
+		t.Logf("%s != %s", err, ErrNotExist)
 	}
 
 }

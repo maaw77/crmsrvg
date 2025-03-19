@@ -256,7 +256,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.id = $1;`
 
-	err = c.DBpool.QueryRow(ctx, statmentGetRow, id).Scan(
+	if err = c.DBpool.QueryRow(ctx, statmentGetRow, id).Scan(
 		&gsmEntry.ID,
 		&gsmEntry.DtReceiving,
 		&gsmEntry.DtCrch,
@@ -269,17 +269,12 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 		&gsmEntry.LicensePlate,
 		&gsmEntry.Status,
 		&gsmEntry.GUID,
-	)
-
-	// if err != nil {
-	// 	return
-	// }
-	// log.Println(row)
-	// entryGsm, err = pgx.CollectOneRow(row, pgx.RowToStructByName[models.GsmTableEntry])
-	// if err != nil {
-	// 	return
-	// }
-	// return entryGsm, nil
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return gsmEntry, ErrNotExist
+		}
+		return gsmEntry, err
+	}
 
 	return
 }

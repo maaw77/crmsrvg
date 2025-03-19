@@ -36,7 +36,7 @@ func subtRegUeser(t *testing.T) {
 		if status := w.Code; status != http.StatusOK {
 			t.Errorf("handler returned wrong status code: got %v want %v",
 				status, http.StatusOK)
-			return
+			continue
 		}
 
 		id := models.IdEntry{}
@@ -61,14 +61,14 @@ func subtRegUeser(t *testing.T) {
 		// Check the HTTP status code is what we expect.
 		if status := w.Code; status != http.StatusBadRequest {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
-			return
+				status, http.StatusBadRequest)
+			continue
 		}
 
 		errD := ErrorMessage{}
 		// t.Log(w.Body.String())
 		json.NewDecoder(w.Body).Decode(&errD)
-		expected := fmt.Sprintf("user (Usrname=%s, ID=%d) already exists", v.Username, idUsers[i])
+		expected := fmt.Sprintf("user (username=%s, id=%d) already exists", v.Username, idUsers[i])
 		if errD.Details != expected {
 			t.Errorf("%s != %s", errD.Details, expected)
 		}
@@ -94,14 +94,14 @@ func subtRegUeser(t *testing.T) {
 		// Check the HTTP status code is what we expect.
 		if status := w.Code; status != http.StatusBadRequest {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
-			return
+				status, http.StatusBadRequest)
+			continue
 		}
 
-		errD := ErrorMessage{}
-		// t.Log(w.Body.String())
-		json.NewDecoder(w.Body).Decode(&errD)
-		t.Log(errD)
+		// errD := ErrorMessage{}
+		// // t.Log(w.Body.String())
+		// json.NewDecoder(w.Body).Decode(&errD)
+		// // t.Log(errD)
 	}
 }
 
@@ -127,7 +127,7 @@ func subtLoginUsers(t *testing.T) {
 		if status := w.Code; status != http.StatusOK {
 			t.Errorf("handler returned wrong status code: got %v want %v",
 				status, http.StatusOK)
-			return
+			continue
 		}
 
 		tkn := AccessToken{}
@@ -183,8 +183,8 @@ func subtLoginUsers(t *testing.T) {
 		// Check the HTTP status code is what we expect.
 		if status := w.Code; status != http.StatusNotFound {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
-			return
+				status, http.StatusNotFound)
+			continue
 		}
 		errorAnswer := ErrorMessage{}
 		json.NewDecoder(w.Body).Decode(&errorAnswer)
@@ -214,8 +214,8 @@ func subtLoginUsers(t *testing.T) {
 		// Check the HTTP status code is what we expect.
 		if status := w.Code; status != http.StatusUnauthorized {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
-			return
+				status, http.StatusUnauthorized)
+			continue
 		}
 		errorAnswer := ErrorMessage{}
 		json.NewDecoder(w.Body).Decode(&errorAnswer)
@@ -244,14 +244,14 @@ func subtLoginUsers(t *testing.T) {
 		// Check the HTTP status code is what we expect.
 		if status := w.Code; status != http.StatusBadRequest {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
-			return
+				status, http.StatusBadRequest)
+			continue
 		}
 
-		errD := ErrorMessage{}
-		// t.Log(w.Body.String())
-		json.NewDecoder(w.Body).Decode(&errD)
-		t.Log(errD)
+		// errD := ErrorMessage{}
+		// // t.Log(w.Body.String())
+		// json.NewDecoder(w.Body).Decode(&errD)
+		// // t.Log(errD)
 	}
 
 }

@@ -34,7 +34,7 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("error= ", err)
+		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
 			log.Println(err)
@@ -43,7 +43,7 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := u.validate.Struct(&user); err != nil {
-		log.Println("error= ", err)
+		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
 			log.Println(err)
@@ -56,9 +56,9 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 
 	id, err := u.storage.AddUser(r.Context(), user)
 	if errors.Is(err, db.ErrExist) {
-		log.Println(err)
+		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
-		if err := enc.Encode(ErrorMessage{Details: fmt.Sprintf("user (Usrname=%s, ID=%d) already exists", user.Username, id.ID)}); err != nil {
+		if err := enc.Encode(ErrorMessage{Details: fmt.Sprintf("user (username=%s, id=%d) already exists", user.Username, id.ID)}); err != nil {
 			log.Println(err)
 		}
 		return
@@ -66,12 +66,14 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		if err := enc.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	}
-
-	enc.Encode(id)
+	w.WriteHeader(http.StatusOK)
+	if err := enc.Encode(id); err != nil {
+		log.Println("error: ", err)
+	}
 	log.Printf("%s is registered", user.Username)
 }
 
@@ -84,19 +86,19 @@ func (u *UsersTable) loginUser(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println("error = ", err)
+		log.Println("error:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	}
 
 	if err := u.validate.Struct(&user); err != nil {
-		log.Println("error = ", err)
+		log.Println("error:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	}
@@ -105,32 +107,36 @@ func (u *UsersTable) loginUser(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, db.ErrNotExist):
 		w.WriteHeader(http.StatusNotFound)
-		log.Printf("user %s was not found", user.Username)
+		log.Printf("error: user %s was not found", user.Username)
 		if err := enc.Encode(ErrorMessage{Details: fmt.Sprintf("user %s was not found", user.Username)}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	case err != nil:
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
+		log.Println("error:", err)
 		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	case userReg.Password != user.Password: // incorrect password entered
 		w.WriteHeader(http.StatusUnauthorized)
-		log.Printf("the password for %s was entered incorrectly", user.Username)
+		log.Printf("error: the password for %s was entered incorrectly", user.Username)
 		if err := enc.Encode(ErrorMessage{Details: "incorrect password entered"}); err != nil {
-			log.Println(err)
+			log.Println("error: ", err)
 		}
 		return
 	}
 
 	tokenA, err := auth.GetToken(userReg.Username, time.Now().Add(time.Hour).Unix())
 	if err != nil {
-		log.Print(err)
+		log.Print("error:", err)
 	}
-	enc.Encode(AccessToken{Token: tokenA})
+	w.WriteHeader(http.StatusOK)
+	if err := enc.Encode(AccessToken{Token: tokenA}); err != nil {
+		log.Print("error:", err)
+
+	}
 }
 
 // newGsmTable allocates and returns a new gsmTable.
