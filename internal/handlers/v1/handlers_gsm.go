@@ -91,14 +91,15 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := g.storage.InsertGsmTable(r.Context(), gsmEntry)
-	if errors.Is(err, db.ErrExist) {
+	switch {
+	case errors.Is(err, db.ErrExist):
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := encod.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s, id=%d) already exists", gsmEntry.GUID, id.ID)}); err != nil {
 			log.Println(err)
 		}
 		return
-	} else if err != nil {
+	case err != nil:
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		if err := encod.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
@@ -141,8 +142,9 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 		encod.Encode(ErrorMessage{Details: "id value not set!"})
 		return
 	}
+
 	id, err := strconv.Atoi(idStr)
-	if err != nil && id < 1 {
+	if err != nil || id < 1 {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := encod.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
@@ -150,8 +152,25 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	gsmEntry, err := g.storage.GetRowGsmTableId(r.Context(), id)
+	switch {
+	case errors.Is(err, db.ErrNotExist):
+		w.WriteHeader(http.StatusBadRequest)
+		if err := encod.Encode(ErrorMessage{Details: db.ErrNotExist.Error()}); err != nil {
+			log.Println("error: ", err)
+		}
+		return
+	case err != nil:
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := encod.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
+			log.Println(err)
+		}
+		return
+	}
 	w.WriteHeader(http.StatusOK)
-	// fmt.Fprintf(w, "<h1>ID = %s</h1>\n", idStr)
+	encod.Encode(gsmEntry)
 }
 
 // swagger:route GET /gsm_table/date/{date} GSM paramCrmDate

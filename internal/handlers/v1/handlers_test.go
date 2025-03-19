@@ -57,6 +57,9 @@ func TestGsm(t *testing.T) {
 
 	t.Run("BadReq", subtAddEntryBadReq)
 	t.Run("GoodReq", subtAddEntryGoodReq)
+
+	t.Run("GetId", subtGetGsmEntryId)
+
 	for _, id := range idGsm {
 		crmDB.DelRowGsmTable(context.Background(), id)
 	}

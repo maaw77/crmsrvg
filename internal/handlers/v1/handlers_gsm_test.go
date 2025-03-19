@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"slices"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
@@ -171,8 +173,7 @@ func subtAddEntryGoodReq(t *testing.T) {
 		handler(w, r)
 
 		if w.Code != http.StatusBadRequest {
-			t.Errorf("handler returned wrong status code: got %v want %v",
-				w.Code, http.StatusOK)
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
 		}
 
 		errD := ErrorMessage{}
@@ -185,4 +186,32 @@ func subtAddEntryGoodReq(t *testing.T) {
 		// t.Log(errD)
 
 	}
+}
+
+func subtGetGsmEntryId(t *testing.T) {
+	gT := newGsmTable(crmDB)
+
+	maxId := slices.Max(idGsm)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/id/{id:[0-9]+}", gT.getGsmEntryId).Methods("GET")
+
+	// r := httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId), nil)
+	r := httptest.NewRequest("GET", "/id/0", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"data validation error"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId+1), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	// for _, id {}
+
 }
