@@ -145,7 +145,11 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil || id < 1 {
-		log.Println("error: ", err)
+		if err == nil {
+			log.Println("error: id<1")
+		} else {
+			log.Println("error: ", err)
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		if err := encod.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
 			log.Println("error: ", err)

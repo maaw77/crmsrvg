@@ -10,35 +10,47 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
 func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
-
+	// fmt.Println(a, b)
 	switch {
 	case a.ID != b.ID:
+		fmt.Println("a.ID != b.ID")
 		return false
 	case a.DtReceiving != b.DtReceiving:
+		fmt.Println("!DtReceiving")
 		return false
 	case a.DtCrch != b.DtCrch:
+		fmt.Println("!DtCrch")
 		return false
 	case a.Site != b.Site:
 		return false
 	case fmt.Sprintf("%.3f", a.IncomeKg) != fmt.Sprintf("%.3f", b.IncomeKg):
+		fmt.Println("!IncomeKg")
 		return false
 	case a.Operator != b.Operator:
+		fmt.Println("!Operator")
 		return false
 	case a.Provider != b.Provider:
+		fmt.Println("!Provider")
 		return false
 	case a.Contractor != b.Contractor:
+		fmt.Println("!Contractor")
 		return false
 	case a.LicensePlate != b.LicensePlate:
+		fmt.Println("!LicensePlate")
 		return false
 	case a.Status != b.Status:
+		fmt.Println("!Status")
 		return false
 	case a.BeenChanged != b.BeenChanged:
+		fmt.Println("!BeenChanged")
 		return false
 	case a.GUID != b.GUID:
+		fmt.Println("!GUID")
 		return false
 	}
 
@@ -163,7 +175,7 @@ func subtAddEntryGoodReq(t *testing.T) {
 	}
 
 	// If the user already exist.
-	for _, gsmEntry := range gsmEntriesArr {
+	for _, gsmEntry := range idGsm {
 		b, _ := json.Marshal(gsmEntry)
 
 		r := httptest.NewRequest("POST", "/gsm", bytes.NewReader(b))
@@ -186,30 +198,48 @@ func subtAddEntryGoodReq(t *testing.T) {
 	}
 }
 
-// func subtGetGsmEntryId(t *testing.T) {
-// 	gT := newGsmTable(crmDB)
+func subtGetGsmEntryId(t *testing.T) {
+	gT := newGsmTable(crmDB)
 
-// 	maxId := slices.Max(idGsm)
+	var maxId int
+	for k := range idGsm {
+		if k > maxId {
+			maxId = k
+		}
+	}
 
-// 	router := mux.NewRouter()
-// 	router.HandleFunc("/id/{id:[0-9]+}", gT.getGsmEntryId).Methods("GET")
+	router := mux.NewRouter()
+	router.HandleFunc("/id/{id:[0-9]+}", gT.getGsmEntryId).Methods("GET")
 
-// 	// r := httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId), nil)
-// 	r := httptest.NewRequest("GET", "/id/0", nil)
-// 	w := httptest.NewRecorder()
-// 	router.ServeHTTP(w, r)
-// 	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"data validation error"}` {
-// 		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
-// 	}
+	// r := httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId), nil)
+	r := httptest.NewRequest("GET", "/id/0", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"data validation error"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
 
-// 	r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId+1), nil)
-// 	w = httptest.NewRecorder()
-// 	router.ServeHTTP(w, r)
-// 	router.ServeHTTP(w, r)
-// 	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
-// 		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
-// 	}
+	r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId+1), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
 
-// 	// for _, id {}
+	for k, v := range idGsm {
+		var inGsmEntry models.GsmTableEntry
+		r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", k), nil)
+		w = httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+		if w.Code != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+		}
 
-// }
+		json.NewDecoder(w.Body).Decode(&inGsmEntry)
+		if !gsmEntriesEqual(inGsmEntry, v) {
+			t.Errorf("inGsmEntry[%d] != entry[%d]", inGsmEntry.ID, k)
+		}
+
+	}
+
+}
