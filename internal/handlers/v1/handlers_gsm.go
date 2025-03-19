@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -67,13 +68,13 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
 
-	enc := json.NewEncoder(w)
+	encod := json.NewEncoder(w)
 
 	var gsmEntry models.GsmTableEntry
 	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
-		if err := enc.Encode(ErrorMessage{Details: err.Error()}); err != nil {
+		if err := encod.Encode(ErrorMessage{Details: err.Error()}); err != nil {
 			log.Println("error!: ", err)
 		}
 		return
@@ -83,7 +84,7 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	if err := g.validate.Struct(&gsmEntry); err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
-		if err := enc.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
+		if err := encod.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
 			log.Println("error: ", err)
 		}
 		return
@@ -93,21 +94,21 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, db.ErrExist) {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
-		if err := enc.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s, id=%d) already exists", gsmEntry.GUID, id.ID)}); err != nil {
+		if err := encod.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s, id=%d) already exists", gsmEntry.GUID, id.ID)}); err != nil {
 			log.Println(err)
 		}
 		return
 	} else if err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		if err := enc.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
+		if err := encod.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
 			log.Println(err)
 		}
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	if err := enc.Encode(id); err != nil {
+	if err := encod.Encode(id); err != nil {
 		log.Println("error: ", err)
 	}
 
@@ -133,16 +134,24 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	encod := json.NewEncoder(w)
 
-	id, ok := mux.Vars(r)["id"]
+	idStr, ok := mux.Vars(r)["id"]
 	if !ok {
-		log.Println("erroror: id value not set!")
+		log.Println("error: id value not set!")
 		w.WriteHeader(http.StatusNotFound)
-		encod.Encode(&ErrorMessage{Details: "id value not set!"})
+		encod.Encode(ErrorMessage{Details: "id value not set!"})
 		return
 	}
-
+	id, err := strconv.Atoi(idStr)
+	if err != nil && id < 1 {
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := encod.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
+			log.Println("error: ", err)
+		}
+		return
+	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "<h1>ID = %s</h1>\n", id)
+	// fmt.Fprintf(w, "<h1>ID = %s</h1>\n", idStr)
 }
 
 // swagger:route GET /gsm_table/date/{date} GSM paramCrmDate
@@ -169,7 +178,7 @@ func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		log.Println("Date value not set!")
 		w.WriteHeader(http.StatusNotFound)
-		encod.Encode(&ErrorMessage{Details: "IDate value not set!"})
+		encod.Encode(ErrorMessage{Details: "IDate value not set!"})
 		return
 	}
 
@@ -177,7 +186,7 @@ func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
-		encod.Encode(&ErrorMessage{Details: fmt.Sprintf(`{"details": "%s"}`, err)})
+		encod.Encode(ErrorMessage{Details: fmt.Sprintf(`{"details": "%s"}`, err)})
 		// body := fmt.Sprintf(`{"details": "%s"}`, err)
 		// fmt.Fprintf(w, "%s", body)
 		return
