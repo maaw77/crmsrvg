@@ -33,13 +33,13 @@ func (c *CrmDatabase) createPool(ctx context.Context, config *pgxpool.Config) (e
 // getIdOrCreateAuxilTable returns the ID if the record exists, otherwise creates the record and returns its ID.
 // It's for the nameTable
 func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, valRecord string) (id models.IdEntry, err error) {
-	statmentGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
-	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
+	statementGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
+	statementCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
 
-	err = c.DBpool.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
+	err = c.DBpool.QueryRow(ctx, statementGetId, valRecord).Scan(&(id.ID))
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		err = c.DBpool.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+		err = c.DBpool.QueryRow(ctx, statementCreate, valRecord).Scan(&(id.ID))
 	}
 
 	return
@@ -48,8 +48,8 @@ func (c *CrmDatabase) getIdOrCreateAuxilTable(ctx context.Context, nameTable, va
 // delRowAuxilTable deletes the row with the specified id from the nameTable and returns statusExe==true,
 // otherwise statusExe==false.
 func (c *CrmDatabase) delRowAuxilTable(ctx context.Context, nameTable string, id int) (statusExec bool, err error) {
-	statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", nameTable)
-	comT, err := c.DBpool.Exec(ctx, statmentDel, id)
+	statementDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", nameTable)
+	comT, err := c.DBpool.Exec(ctx, statementDel, id)
 	statusExec = comT.RowsAffected() == 1
 	return
 }
@@ -128,18 +128,18 @@ func (c *CrmDatabase) DelRowProviders(ctx context.Context, id int) (statusExec b
 
 // getIdOrCreateAuxilTableTx  is similar to  getIdOrCreateAuxilTable, but is used pgxpool.Tx.
 func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx, nameTable, valRecord string) (id models.IdEntry, err error) {
-	statmentGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
-	statmentCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
+	statementGetId := fmt.Sprintf("SELECT id FROM %s WHERE name = $1;", nameTable)
+	statementCreate := fmt.Sprintf("INSERT INTO %s VALUES (DEFAULT, $1) RETURNING id;", nameTable)
 
 	tx, ok := txI.(*pgxpool.Tx)
 	if !ok {
 		return models.IdEntry{}, fmt.Errorf("%T != *pgxpool.Tx", tx)
 	}
 
-	err = tx.QueryRow(ctx, statmentGetId, valRecord).Scan(&(id.ID))
+	err = tx.QueryRow(ctx, statementGetId, valRecord).Scan(&(id.ID))
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		err = tx.QueryRow(ctx, statmentCreate, valRecord).Scan(&(id.ID))
+		err = tx.QueryRow(ctx, statementCreate, valRecord).Scan(&(id.ID))
 	}
 	return
 }
@@ -148,9 +148,9 @@ func (c *CrmDatabase) getIdOrCreateAuxilTableTx(ctx context.Context, txI pgx.Tx,
 // If a entry with the specified id exists, it does not insert the row and returns the entry id and an ErrGuidExists.
 func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
 
-	statmentGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
+	statementGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
 
-	err = c.DBpool.QueryRow(ctx, statmentGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
+	err = c.DBpool.QueryRow(ctx, statementGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
 
 	if id.ID != 0 {
 		return id, ErrExist
@@ -162,7 +162,7 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 	}
 	defer tx.Rollback(context.TODO())
 
-	statmentCreateGsmRow := `INSERT INTO gsm_table (id, 
+	statementCreateGsmRow := `INSERT INTO gsm_table (id, 
                                             dt_receiving,
                                             dt_crch,
                                             income_kg,
@@ -208,7 +208,7 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 		return
 	}
 
-	err = tx.QueryRow(ctx, statmentCreateGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
+	err = tx.QueryRow(ctx, statementCreateGsmRow, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
 		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
 	if err != nil {
 		return
@@ -221,10 +221,74 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 	return id, nil
 }
 
+// UpdateRowGsmTable updates an entry in the GSM table with the specified GUID.
+func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.GsmTableEntry) (id models.IdEntry, err error) {
+	statementGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
+
+	err = c.DBpool.QueryRow(ctx, statementGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return id, ErrNotExist
+	}
+
+	// tx, err := c.DBpool.Begin(ctx)
+	// if err != nil {
+	// 	return
+	// }
+	// defer tx.Rollback(context.TODO())
+
+	// statementUpdate := `UPDATE gsm_table SET dt_receiving = $1,
+	//                                         dt_crch = $2,
+	//                                         income_kg = $3,
+	//                                         been_changed = $4,
+	//                                         db_data_creation = $5,
+	//                                         site_id = $6,
+	//                                         operator_id = $7,
+	//                                         provider_id = $8,
+	//                                         contractor_id = $9,
+	//                                         license_plate_id = $10,
+	//                                         status_id = $11 WHERE guid = $12`
+
+	// idSite, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "sites", gsmEntry.Site)
+	// if err != nil {
+	// 	return
+	// }
+
+	// idOperator, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "operators", gsmEntry.Operator)
+	// if err != nil {
+	// 	return
+	// }
+
+	// idProvider, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "providers", gsmEntry.Provider)
+	// if err != nil {
+	// 	return
+	// }
+
+	// idContractor, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "contractors", gsmEntry.Contractor)
+	// if err != nil {
+	// 	return
+	// }
+
+	// idLicensePlate, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "license_plates", gsmEntry.LicensePlate)
+	// if err != nil {
+	// 	return
+	// }
+
+	// idStatus, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "statuses", gsmEntry.Status)
+	// if err != nil {
+	// 	return
+	// }
+
+	// if err = tx.Commit(ctx); err != nil {
+	// 	return
+	// }
+	return
+}
+
 // DelRowGsmTable deletes the row with the specified id from the GSM table and returns statusExe==true,
 // otherwise statusExe==false.
 func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bool, err error) {
-	// statmentDel := fmt.Sprintf("DELETE FROM %s WHERE id = $1;", "gsm_table")
+
 	comT, err := c.DBpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
 	if err != nil {
 		return false, err
@@ -235,7 +299,7 @@ func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bo
 
 // GetRowGsmTableId returns the row with the specified id from the GSM table.
 func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry models.GsmTableEntry, err error) {
-	statmentGetRow := `SELECT  gsm_table.id,
+	statementGetRow := `SELECT  gsm_table.id,
 						   	   gsm_table.dt_receiving,
 							   gsm_table.dt_crch,
 							   gsm_table.been_changed,
@@ -256,7 +320,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.id = $1;`
 
-	if err = c.DBpool.QueryRow(ctx, statmentGetRow, id).Scan(
+	if err = c.DBpool.QueryRow(ctx, statementGetRow, id).Scan(
 		&gsmEntry.ID,
 		&gsmEntry.DtReceiving,
 		&gsmEntry.DtCrch,
@@ -281,7 +345,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 
 // GetRowGsmTableDtReceiving returns a row with the specified date of receipt from the GSM table.
 func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgtype.Date) (gsmEntries []models.GsmTableEntry, err error) {
-	statmentGetRow := `SELECT  gsm_table.id,
+	statementGetRow := `SELECT  gsm_table.id,
 						   	   gsm_table.dt_receiving,
 							   gsm_table.dt_crch,
 							   gsm_table.been_changed,
@@ -302,7 +366,7 @@ func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgty
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.dt_receiving = $1;`
 
-	rows, err := c.DBpool.Query(ctx, statmentGetRow, dtRec)
+	rows, err := c.DBpool.Query(ctx, statementGetRow, dtRec)
 	if err != nil {
 		return
 	}
@@ -314,29 +378,29 @@ func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgty
 
 // AddUser adds the user to the database.
 func (c *CrmDatabase) AddUser(ctx context.Context, user models.User) (id models.IdEntry, err error) {
-	statmentInsert := `INSERT INTO users (id,
+	statementInsert := `INSERT INTO users (id,
 										  username,
 										  password,
 										  admin) 
 										  VALUES (DEFAULT, $1, $2, $3)
 										  RETURNING id;
 										`
-	statmentGet := `SELECT id FROM users WHERE username = $1;`
+	statementGet := `SELECT id FROM users WHERE username = $1;`
 
-	c.DBpool.QueryRow(ctx, statmentGet, user.Username).Scan(&id.ID)
+	c.DBpool.QueryRow(ctx, statementGet, user.Username).Scan(&id.ID)
 
 	if id.ID != 0 {
 		return id, ErrExist
 	}
 
-	err = c.DBpool.QueryRow(ctx, statmentInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
+	err = c.DBpool.QueryRow(ctx, statementInsert, user.Username, user.Password, user.Admin).Scan(&(id.ID))
 	return
 }
 
 // GetUser returns the registered user from the database.
 func (c *CrmDatabase) GetUser(ctx context.Context, usermame string) (user models.User, err error) {
-	statmentGet := `SELECT id, username, password, admin FROM users WHERE username = $1;`
-	if err = c.DBpool.QueryRow(ctx, statmentGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
+	statementGet := `SELECT id, username, password, admin FROM users WHERE username = $1;`
+	if err = c.DBpool.QueryRow(ctx, statementGet, usermame).Scan(&user.ID, &user.Username, &user.Password, &user.Admin); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return user, ErrNotExist
 		}
