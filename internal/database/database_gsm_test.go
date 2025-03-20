@@ -179,3 +179,34 @@ func subtDelRowGsmTable(t *testing.T) {
 		}
 	}
 }
+
+func subtUpdateRowGsmTable(t *testing.T) {
+	gsmE := models.GsmTableEntry{}
+	b := []byte(`{"dt_receiving": "2023-12-11",
+
+				"dt_crch": "0001-01-01",
+
+				"site": "Site_5",
+
+				"income_kg": 720.9102379582451,
+
+				"operator": "Operator_1",
+
+				"provider": "Provider_3",
+
+				"contractor": "Contractor_3",
+
+				"license_plate": "LicensePlate_2",
+
+				"status": "Status_1",
+
+				"been_changed": false,
+
+				"guid": "593ff941-405e-4afd-9eec-f99999999999999"}`)
+	json.Unmarshal(b, &gsmE)
+
+	_, err := crmDB.UpdateRowGsmTable(context.Background(), gsmE)
+	if !errors.Is(err, ErrNotExist) {
+		t.Errorf("%s != %s", err, ErrNotExist)
+	}
+}
