@@ -2,42 +2,39 @@ package database
 
 import (
 	"context"
-	"log"
-	"strconv"
+	"encoding/json"
 	"testing"
 
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
-var (
-	// crmDB *CrmDatabase
+func subBenchmarkGetIdOrCreateSites(b *testing.B) {
+	gsmE := models.GsmTableEntry{}
+	payload := []byte(`{"dt_receiving": "2023-12-11",
 
-	entriesB = map[string]models.IdEntry{}
-)
+				"dt_crch": "0001-01-01",
 
-func clearEnries() {
-	for k, v := range entriesB {
-		s, err := crmDB.DelRowSites(context.Background(), v.ID)
+				"site": "Site_5",
 
-		switch {
-		case err != nil:
-			log.Printf("DelRowSites-> %s != nil. For %s", err, k)
-		case s != true:
-			log.Printf("DelRowSites-> %v != true. For %s", s, k)
-		}
+				"income_kg": 720.9102379582451,
 
-	}
-}
-func BenchmarkGetIdOrCreateSites(b *testing.B) {
-	b.Cleanup(clearEnries)
-	var err error
+				"operator": "Operator_1",
+
+				"provider": "Provider_3",
+
+				"contractor": "Contractor_3",
+
+				"license_plate": "LicensePlate_2",
+
+				"status": "Status_1",
+
+				"been_changed": false,
+
+				"guid": "593ff941-405e-4afd-9eec-f99999999999999"}`)
+	json.Unmarshal(payload, &gsmE)
+
 	for b.Loop() {
-		for i := 0; i <= 10; i++ {
-			entriesB["Site_"+strconv.Itoa(i)], err = crmDB.GetIdOrCreateSites(context.Background(), "Site_"+strconv.Itoa(i))
-			if err != nil {
-				b.Logf("GetIdOrCreateSites-> %s != nil", err)
-			}
-		}
+		crmDB.UpdateRowGsmTable(context.Background(), gsmE)
 	}
 
 }

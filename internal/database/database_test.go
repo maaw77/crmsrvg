@@ -87,7 +87,7 @@ func TestGsmTable(t *testing.T) {
 	t.Run("UpdateRow", subtUpdateRowGsmTable)
 	t.Run("DelRow", subtDelRowGsmTable)
 
-	// crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table;")
+	crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table;")
 
 }
 
@@ -103,4 +103,21 @@ func TestUsersTable(t *testing.T) {
 		t.Fatalf("%s != nil", err)
 	}
 	t.Run("Users", subtUserTable)
+}
+
+func BenchmarkGsm(b *testing.B) {
+	var err error
+	crmDB, err = NewCrmDatabase(context.Background(), POSTGRESQL_URL)
+	if err != nil {
+		b.Fatalf("%s != nil", err)
+	}
+	defer crmDB.DBpool.Close()
+
+	if err := crmDB.DBpool.Ping(context.Background()); err != nil {
+		b.Fatalf("%s != nil", err)
+
+	}
+
+	b.Run("Update", subBenchmarkGetIdOrCreateSites)
+
 }

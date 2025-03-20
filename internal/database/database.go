@@ -151,12 +151,15 @@ func (c *CrmDatabase) InsertGsmTable(ctx context.Context, gsmEntry models.GsmTab
 	statementGetRowGuid := `SELECT id FROM gsm_table WHERE guid = $1;`
 
 	err = c.DBpool.QueryRow(ctx, statementGetRowGuid, gsmEntry.GUID).Scan(&id.ID)
-
-	if id.ID != 0 {
+	// log.Println("err=", err, id)
+	if !errors.Is(err, pgx.ErrNoRows) {
 		return id, ErrExist
+	} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return
 	}
 
-	tx, err := c.DBpool.Begin(ctx)
+	var tx pgx.Tx
+	tx, err = c.DBpool.Begin(ctx)
 	if err != nil {
 		return
 	}
@@ -229,9 +232,12 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return id, ErrNotExist
+	} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return
 	}
 
-	tx, err := c.DBpool.Begin(ctx)
+	var tx pgx.Tx
+	tx, err = c.DBpool.Begin(ctx)
 	if err != nil {
 		return
 	}
@@ -288,6 +294,10 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 	if err = tx.Commit(ctx); err != nil {
 		return
 	}
+
+	// if errors.Is(err, pgx.ErrNoRows) {
+	// 	return id, ErrNotExist
+	// }
 
 	return id, nil
 
