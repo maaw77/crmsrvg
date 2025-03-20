@@ -84,9 +84,10 @@ func TestGsmTable(t *testing.T) {
 	t.Run("InsertRow", subtInserGsmTable)
 	t.Run("GetRowId", subtGetRowGsmTableId)
 	t.Run("GetRowDtRec", subtGetRowGsmTableDtReceiving)
+	t.Run("UpdateRow", subtUpdateRowGsmTable)
 	t.Run("DelRow", subtDelRowGsmTable)
 
-	// crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table WHERE id > 0;")
+	// crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table;")
 
 }
 
