@@ -87,18 +87,19 @@ func TestGsmTable(t *testing.T) {
 	t.Run("UpdateRow", subtUpdateRowGsmTable)
 	t.Run("DelRow", subtDelRowGsmTable)
 
+	gsmEntriesMap = make(map[int]models.GsmTableEntry)
+
 	// crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table;")
 
 }
 func BenchmarkGsm(b *testing.B) {
 	var err error
-	if crmDB == nil {
-		crmDB, err = NewCrmDatabase(context.Background(), POSTGRESQL_URL)
-		if err != nil {
-			b.Fatalf("%s != nil", err)
-		}
-		defer crmDB.DBpool.Close()
+
+	crmDB, err = NewCrmDatabase(context.Background(), POSTGRESQL_URL)
+	if err != nil {
+		b.Fatalf("%s != nil", err)
 	}
+	defer crmDB.DBpool.Close()
 
 	if err := crmDB.DBpool.Ping(context.Background()); err != nil {
 		b.Fatalf("%s != nil", err)

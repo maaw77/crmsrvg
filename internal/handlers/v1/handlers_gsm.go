@@ -75,7 +75,7 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := encod.Encode(ErrorMessage{Details: err.Error()}); err != nil {
-			log.Println("error!: ", err)
+			log.Println("error: ", err)
 		}
 		return
 
@@ -96,6 +96,58 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		if err := encod.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s, id=%d) already exists", gsmEntry.GUID, id.ID)}); err != nil {
+			log.Println(err)
+		}
+		return
+	case err != nil:
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := encod.Encode(ErrorMessage{Details: "something happened to the server"}); err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := encod.Encode(id); err != nil {
+		log.Println("error: ", err)
+	}
+
+}
+
+// updateEntryGsm updates an entry in the GSM table with the specified GUID.
+func (g *GsmTable) updateEntryGsm(w http.ResponseWriter, r *http.Request) {
+	log.Println("updateEntryGsm Serving:", r.URL.Path, "from", r.Host)
+	w.Header().Set("Content-Type", "application/json")
+
+	encod := json.NewEncoder(w)
+
+	var gsmEntry models.GsmTableEntry
+	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := encod.Encode(ErrorMessage{Details: err.Error()}); err != nil {
+			log.Println("error: ", err)
+		}
+		return
+
+	}
+
+	if err := g.validate.Struct(&gsmEntry); err != nil {
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := encod.Encode(ErrorMessage{Details: "data validation error"}); err != nil {
+			log.Println("error: ", err)
+		}
+		return
+	}
+
+	id, err := g.storage.UpdateRowGsmTable(r.Context(), gsmEntry)
+	switch {
+	case errors.Is(err, db.ErrNotExist):
+		log.Println("error: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		if err := encod.Encode(ErrorMessage{Details: fmt.Sprintf("entry (guid=%s) not exists", gsmEntry.GUID)}); err != nil {
 			log.Println(err)
 		}
 		return

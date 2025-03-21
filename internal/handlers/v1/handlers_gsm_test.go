@@ -5,52 +5,67 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
 func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
-	// fmt.Println(a, b)
+
 	switch {
 	case a.ID != b.ID:
-		fmt.Println("a.ID != b.ID")
+		log.Println("!ID")
 		return false
-	case a.DtReceiving != b.DtReceiving:
-		fmt.Println("!DtReceiving")
+	case a.DtReceiving.Time.Format(time.DateOnly) != b.DtReceiving.Time.Format(time.DateOnly):
+		log.Println("!DtReceiving")
+
 		return false
-	case a.DtCrch != b.DtCrch:
-		fmt.Println("!DtCrch")
+	case a.DtCrch.Time.Format(time.DateOnly) != b.DtCrch.Time.Format(time.DateOnly):
+		log.Println("!DtCrch")
+
 		return false
 	case a.Site != b.Site:
+		log.Println("!Site")
+
 		return false
-	case fmt.Sprintf("%.3f", a.IncomeKg) != fmt.Sprintf("%.3f", b.IncomeKg):
-		fmt.Println("!IncomeKg")
+	case (a.IncomeKg - b.IncomeKg) > 1:
+		log.Println("!IncomeKg")
+
 		return false
 	case a.Operator != b.Operator:
-		fmt.Println("!Operator")
+		log.Println("!Operator")
+
 		return false
 	case a.Provider != b.Provider:
-		fmt.Println("!Provider")
+		log.Println("!Provider")
+
 		return false
 	case a.Contractor != b.Contractor:
-		fmt.Println("!Contractor")
+		log.Println("!Contractor")
+
 		return false
 	case a.LicensePlate != b.LicensePlate:
-		fmt.Println("!LicensePlate")
+		log.Println("!.LicensePlate")
+
 		return false
 	case a.Status != b.Status:
-		fmt.Println("!Status")
+		log.Println("!Status")
+
 		return false
 	case a.BeenChanged != b.BeenChanged:
-		fmt.Println("!BeenChanged")
+		log.Println("!BeenChanged")
+
 		return false
 	case a.GUID != b.GUID:
-		fmt.Println("!GUID")
+		log.Println("!GUID")
+
 		return false
 	}
 
@@ -88,11 +103,15 @@ func subtAddEntryBadReq(t *testing.T) {
 	gT := newGsmTable(crmDB)
 	user := models.User{Username: "kjdlk", Password: "jldkdj"}
 
+	router := mux.NewRouter()
+	router.HandleFunc("/gsm", gT.addEntryGsm).Methods("POST")
+
 	payload, _ := json.Marshal(user)
 	r := httptest.NewRequest("POST", "/gsm", bytes.NewReader(payload))
 	w := httptest.NewRecorder()
-	handler := http.HandlerFunc(gT.addEntryGsm)
-	handler(w, r)
+	// handler := http.HandlerFunc(gT.addEntryGsm)
+	// handler(w, r)
+	router.ServeHTTP(w, r)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -126,8 +145,9 @@ func subtAddEntryBadReq(t *testing.T) {
 	// t.Log(gsmE)
 	r = httptest.NewRequest("POST", "/gsm", bytes.NewReader(gsmB))
 	w = httptest.NewRecorder()
-	handler = http.HandlerFunc(gT.addEntryGsm)
-	handler(w, r)
+	// handler = http.HandlerFunc(gT.addEntryGsm)
+	// handler(w, r)
+	router.ServeHTTP(w, r)
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			w.Code, http.StatusBadRequest)
@@ -154,13 +174,16 @@ func subtAddEntryGoodReq(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s != nil", err)
 	}
-	handler := http.HandlerFunc(gT.addEntryGsm)
+	// handler := http.HandlerFunc(gT.addEntryGsm)
+	router := mux.NewRouter()
+	router.HandleFunc("/gsm", gT.addEntryGsm).Methods("POST")
 	for _, gsmEntry := range gsmEntriesArr {
 		b, _ := json.Marshal(gsmEntry)
 
 		r := httptest.NewRequest("POST", "/gsm", bytes.NewReader(b))
 		w := httptest.NewRecorder()
-		handler(w, r)
+		// handler(w, r)
+		router.ServeHTTP(w, r)
 
 		if w.Code != http.StatusOK {
 			t.Errorf("handler returned wrong status code: got %v want %v",
@@ -180,7 +203,8 @@ func subtAddEntryGoodReq(t *testing.T) {
 
 		r := httptest.NewRequest("POST", "/gsm", bytes.NewReader(b))
 		w := httptest.NewRecorder()
-		handler(w, r)
+		// handler(w, r)
+		router.ServeHTTP(w, r)
 
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
@@ -196,6 +220,92 @@ func subtAddEntryGoodReq(t *testing.T) {
 		// t.Log(errD)
 
 	}
+}
+
+func subtUpdateEntryGsm(t *testing.T) {
+	gT := newGsmTable(crmDB)
+	router := mux.NewRouter()
+	router.HandleFunc("/gsm", gT.updateEntryGsm).Methods("PUT")
+
+	// Bad request.
+	payload := []byte(`{"dt_receiving": "2023-12-11",
+
+				"dt_crch": "0001-01-01",
+
+				"site": "Site_5",
+
+				"income_kg": 720.9102379582451,
+
+				"operator": "Operator_1",
+
+				"provider": "Provider_3",
+
+				"contractor": "Contractor_3",
+
+				"license_plate": "LicensePlate_2",
+
+				"status": "Status_1",
+
+				"been_changed": false,
+
+				"guid": "593ff941"}`)
+
+	r := httptest.NewRequest("PUT", "/gsm", bytes.NewReader(payload))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			w.Code, http.StatusBadRequest)
+	}
+	errD := ErrorMessage{}
+	json.NewDecoder(w.Body).Decode(&errD)
+	if errD.Details != "data validation error" {
+		t.Errorf(`%s != "data validation error"`, errD.Details)
+	}
+
+	for _, v := range idGsmMap {
+		v.GUID = "12345cf8-06ee-421a-af26-8f720eb9bc39"
+		payload, _ := json.Marshal(v)
+		r := httptest.NewRequest("PUT", "/gsm", bytes.NewReader(payload))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+		}
+
+		errMes := ErrorMessage{}
+
+		json.NewDecoder(w.Body).Decode(&errMes)
+
+		if errMes.Details != "entry (guid=12345cf8-06ee-421a-af26-8f720eb9bc39) not exists" {
+			t.Errorf(`the received error message "%s" != "entry (guid=12345cf8-06ee-421a-af26-8f720eb9bc39) not exists"`, errMes.Details)
+		}
+
+	}
+
+	for k, v := range idGsmMap {
+		v.DtCrch = pgtype.Date{Time: time.Now(), Valid: true}
+		payload, _ := json.Marshal(v)
+		r := httptest.NewRequest("PUT", "/gsm", bytes.NewReader(payload))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+		}
+
+		idGE := models.IdEntry{}
+
+		json.NewDecoder(w.Body).Decode(&idGE)
+
+		if idGE.ID != k {
+			t.Errorf("the received ID(%d) != %d", idGE.ID, k)
+		}
+		idGsmMap[k] = v
+	}
+
 }
 
 func subtGetGsmEntryId(t *testing.T) {

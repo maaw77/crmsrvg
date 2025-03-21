@@ -58,7 +58,7 @@ func TestGsm(t *testing.T) {
 
 	t.Run("BadReq", subtAddEntryBadReq)
 	t.Run("GoodReq", subtAddEntryGoodReq)
-
+	t.Run("Update", subtUpdateEntryGsm)
 	t.Run("GetId", subtGetGsmEntryId)
 
 	for k := range idGsmMap {

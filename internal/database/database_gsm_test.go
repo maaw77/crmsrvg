@@ -155,13 +155,15 @@ func subtGetRowGsmTableId(t *testing.T) {
 		if !gsmEntriesEqual(v, gE) {
 			t.Errorf("%v != %v", v, gE)
 		}
-		if k > maxId {
+		if k >= maxId {
 			maxId = k + 1
 		}
 	}
+
+	t.Logf("maxId= %d", maxId)
 	_, err := crmDB.GetRowGsmTableId(context.Background(), maxId)
 	if err != ErrNotExist {
-		t.Logf("%s != %s", err, ErrNotExist)
+		t.Errorf("%s != %s", err, ErrNotExist)
 	}
 
 }
@@ -176,7 +178,7 @@ func subtGetRowGsmTableDtReceiving(t *testing.T) {
 		tm, _ := time.Parse(time.DateOnly, k)
 		gsmEntries, err := crmDB.GetRowsGsmTableDtReceiving(context.Background(), pgtype.Date{Time: tm, Valid: true})
 		if err != nil {
-			t.Errorf("%s != nil", err)
+			t.Errorf(`the received error message "%s" != nil`, err)
 			continue
 		}
 		t.Log(len(gsmEntries), v)
@@ -184,29 +186,30 @@ func subtGetRowGsmTableDtReceiving(t *testing.T) {
 			t.Errorf("%d != %d", len(gsmEntries), v)
 		}
 	}
+
+	_, err := crmDB.GetRowsGsmTableDtReceiving(context.Background(), pgtype.Date{Time: time.Now(), Valid: true})
+	if err != ErrNotExist {
+		t.Errorf(`the received error message "%s" != %s`, err, ErrNotExist)
+
+	}
+
 }
 
 func subtDelRowGsmTable(t *testing.T) {
 	for k := range gsmEntriesMap {
-		b, err := crmDB.DelRowGsmTable(context.Background(), k)
+		err := crmDB.DelRowGsmTable(context.Background(), k)
 		if err != nil {
-			t.Errorf("%s != nil", err)
+			t.Errorf(`the received error message "%s" != nil`, err)
+		}
 
-		}
-		if !b {
-			t.Errorf("%v != true", b)
-		}
 	}
 
 	for k := range gsmEntriesMap {
-		b, err := crmDB.DelRowGsmTable(context.Background(), k)
-		if err != nil {
-			t.Errorf("%s != nil", err)
+		err := crmDB.DelRowGsmTable(context.Background(), k)
+		if err != ErrNotExist {
+			t.Errorf(`the received error message "%s" != %s`, err, ErrNotExist)
+		}
 
-		}
-		if b {
-			t.Errorf("%v != false", b)
-		}
 	}
 }
 
@@ -241,7 +244,7 @@ func subtUpdateRowGsmTable(t *testing.T) {
 	}
 
 	for k, v := range gsmEntriesMap {
-		changGsmEnry(&v)
+		changGsmEnry(&v) // Changes v=gsmEntry.
 		gsmEntriesMap[k] = v
 		idOut, err := crmDB.UpdateRowGsmTable(context.Background(), v)
 		if err != nil {

@@ -303,14 +303,18 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 
 // DelRowGsmTable deletes the row with the specified id from the GSM table and returns statusExe==true,
 // otherwise statusExe==false.
-func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (statusExec bool, err error) {
+func (c *CrmDatabase) DelRowGsmTable(ctx context.Context, id int) (err error) {
 
 	comT, err := c.DBpool.Exec(ctx, "DELETE FROM gsm_table WHERE id = $1;", id)
-	if err != nil {
-		return false, err
+	switch {
+	case err != nil:
+		return
+	case comT.RowsAffected() == 0:
+		return ErrNotExist
+	default:
+		return
 	}
-	statusExec = comT.RowsAffected() == 1
-	return
+
 }
 
 // GetRowGsmTableId returns the row with the specified id from the GSM table.
@@ -336,7 +340,7 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 							   JOIN statuses ON gsm_table.status_id = statuses.id
 							   WHERE gsm_table.id = $1;`
 
-	if err = c.DBpool.QueryRow(ctx, statementGetRow, id).Scan(
+	err = c.DBpool.QueryRow(ctx, statementGetRow, id).Scan(
 		&gsmEntry.ID,
 		&gsmEntry.DtReceiving,
 		&gsmEntry.DtCrch,
@@ -349,14 +353,17 @@ func (c *CrmDatabase) GetRowGsmTableId(ctx context.Context, id int) (gsmEntry mo
 		&gsmEntry.LicensePlate,
 		&gsmEntry.Status,
 		&gsmEntry.GUID,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return gsmEntry, ErrNotExist
-		}
-		return gsmEntry, err
+	)
+	switch {
+
+	case errors.Is(err, pgx.ErrNoRows):
+		return gsmEntry, ErrNotExist
+	case err != nil:
+		return
+	default:
+		return
 	}
 
-	return
 }
 
 // GetRowGsmTableDtReceiving returns a row with the specified date of receipt from the GSM table.
@@ -388,6 +395,10 @@ func (c *CrmDatabase) GetRowsGsmTableDtReceiving(ctx context.Context, dtRec pgty
 	}
 
 	gsmEntries, err = pgx.CollectRows(rows, pgx.RowToStructByName[models.GsmTableEntry])
+
+	if len(gsmEntries) == 0 {
+		return gsmEntries, ErrNotExist
+	}
 
 	return
 }
