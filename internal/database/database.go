@@ -235,7 +235,6 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 	} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return
 	}
-
 	var tx pgx.Tx
 	tx, err = c.DBpool.Begin(ctx)
 	if err != nil {
@@ -253,7 +252,7 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 	                                        provider_id = $8,
 	                                        contractor_id = $9,
 	                                        license_plate_id = $10,
-	                                        status_id = $11 WHERE guid = $12`
+	                                        status_id = $11 WHERE guid = $12 RETURNING id;`
 
 	idSite, err := c.getIdOrCreateAuxilTableTx(ctx, tx, "sites", gsmEntry.Site)
 	if err != nil {
@@ -285,6 +284,9 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 		return
 	}
 
+	// err = tx.QueryRow(ctx, statementUpdate, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
+	// 	idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
+
 	err = tx.QueryRow(ctx, statementUpdate, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
 		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
 	if err != nil {
@@ -298,7 +300,6 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 	// if errors.Is(err, pgx.ErrNoRows) {
 	// 	return id, ErrNotExist
 	// }
-
 	return id, nil
 
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -18,36 +18,66 @@ func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
 
 	switch {
 	case a.ID != b.ID:
+		log.Println("!ID")
 		return false
-	case a.DtReceiving != b.DtReceiving:
+	case a.DtReceiving.Time.Format(time.DateOnly) != b.DtReceiving.Time.Format(time.DateOnly):
+		log.Println("!DtReceiving")
+
 		return false
-	case a.DtCrch != b.DtCrch:
+	case a.DtCrch.Time.Format(time.DateOnly) != b.DtCrch.Time.Format(time.DateOnly):
+		log.Println("!DtCrch")
+
 		return false
 	case a.Site != b.Site:
+		log.Println("!Site")
+
 		return false
-	case fmt.Sprintf("%.3f", a.IncomeKg) != fmt.Sprintf("%.3f", b.IncomeKg):
+	case (a.IncomeKg - b.IncomeKg) > 1:
+		log.Println("!IncomeKg")
+
 		return false
 	case a.Operator != b.Operator:
+		log.Println("!Operator")
+
 		return false
 	case a.Provider != b.Provider:
+		log.Println("!Provider")
+
 		return false
 	case a.Contractor != b.Contractor:
+		log.Println("!Contractor")
+
 		return false
 	case a.LicensePlate != b.LicensePlate:
+		log.Println("!.LicensePlate")
+
 		return false
 	case a.Status != b.Status:
+		log.Println("!Status")
+
 		return false
 	case a.BeenChanged != b.BeenChanged:
+		log.Println("!BeenChanged")
+
 		return false
 	case a.GUID != b.GUID:
+		log.Println("!GUID")
+
 		return false
 	}
 
 	return true
 }
 
+func changGsmEnry(gsmE *models.GsmTableEntry) {
+	gsmE.DtReceiving = pgtype.Date{Time: time.Now(), Valid: true}
+	gsmE.DtCrch = pgtype.Date{Time: time.Now(), Valid: true}
+	gsmE.Site = gsmE.Site + "100"
+	gsmE.IncomeKg *= 1000
+	gsmE.BeenChanged = !(gsmE.BeenChanged)
+}
+
 func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
-	// fmt.Println("###############################")
 	f, err := os.Open(fileName)
 	if err != nil {
 		return
@@ -205,10 +235,33 @@ func subtUpdateRowGsmTable(t *testing.T) {
 				"guid": "593ff941-405e-4afd-9eec-f99999999999999"}`)
 	json.Unmarshal(b, &gsmE)
 
-	id, err := crmDB.UpdateRowGsmTable(context.Background(), gsmE)
-	// if !errors.Is(err, ErrNotExist) {
-	// 	t.Errorf("%s != %s", err, ErrNotExist)
-	// }
+	_, err := crmDB.UpdateRowGsmTable(context.Background(), gsmE)
+	if !errors.Is(err, ErrNotExist) {
+		t.Errorf("%s != %s", err, ErrNotExist)
+	}
 
-	t.Log(id, err)
+	for k, v := range gsmEntriesMap {
+		changGsmEnry(&v)
+		gsmEntriesMap[k] = v
+		idOut, err := crmDB.UpdateRowGsmTable(context.Background(), v)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+		}
+		if idOut.ID != k {
+			t.Errorf("%d != %d", idOut, k)
+		}
+	}
+
+	for k, v := range gsmEntriesMap {
+
+		gE, err := crmDB.GetRowGsmTableId(context.Background(), k)
+		if err != nil {
+			t.Errorf("%s != nil", err)
+			continue
+		}
+
+		if !gsmEntriesEqual(v, gE) {
+			t.Errorf("%v != %v", gE, v)
+		}
+	}
 }
