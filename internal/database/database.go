@@ -284,9 +284,6 @@ func (c *CrmDatabase) UpdateRowGsmTable(ctx context.Context, gsmEntry models.Gsm
 		return
 	}
 
-	// err = tx.QueryRow(ctx, statementUpdate, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
-	// 	idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
-
 	err = tx.QueryRow(ctx, statementUpdate, gsmEntry.DtReceiving, gsmEntry.DtCrch, gsmEntry.IncomeKg, gsmEntry.BeenChanged, time.Now(),
 		idSite.ID, idOperator.ID, idProvider.ID, idContractor.ID, idLicensePlate.ID, idStatus.ID, gsmEntry.GUID).Scan(&(id.ID))
 	if err != nil {

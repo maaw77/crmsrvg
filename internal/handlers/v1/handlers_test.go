@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	idUsers = []int{}
-	idGsm   = map[int]models.GsmTableEntry{}
-	crmDB   *database.CrmDatabase
+	idUsers  = []int{}
+	idGsmMap = map[int]models.GsmTableEntry{}
+	crmDB    *database.CrmDatabase
 )
 
 func TestUsers(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGsm(t *testing.T) {
 
 	t.Run("GetId", subtGetGsmEntryId)
 
-	for k := range idGsm {
+	for k := range idGsmMap {
 		crmDB.DelRowGsmTable(context.Background(), k)
 	}
 }

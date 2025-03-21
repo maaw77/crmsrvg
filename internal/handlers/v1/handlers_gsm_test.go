@@ -170,12 +170,12 @@ func subtAddEntryGoodReq(t *testing.T) {
 		var id models.IdEntry
 		json.NewDecoder(w.Body).Decode(&id)
 		gsmEntry.ID = id.ID
-		idGsm[id.ID] = gsmEntry
+		idGsmMap[id.ID] = gsmEntry
 
 	}
 
 	// If the user already exist.
-	for _, gsmEntry := range idGsm {
+	for _, gsmEntry := range idGsmMap {
 		b, _ := json.Marshal(gsmEntry)
 
 		r := httptest.NewRequest("POST", "/gsm", bytes.NewReader(b))
@@ -202,7 +202,7 @@ func subtGetGsmEntryId(t *testing.T) {
 	gT := newGsmTable(crmDB)
 
 	var maxId int
-	for k := range idGsm {
+	for k := range idGsmMap {
 		if k > maxId {
 			maxId = k
 		}
@@ -226,7 +226,7 @@ func subtGetGsmEntryId(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
 	}
 
-	for k, v := range idGsm {
+	for k, v := range idGsmMap {
 		var inGsmEntry models.GsmTableEntry
 		r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", k), nil)
 		w = httptest.NewRecorder()
