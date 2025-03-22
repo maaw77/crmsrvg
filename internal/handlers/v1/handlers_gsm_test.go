@@ -311,13 +311,6 @@ func subtUpdateEntryGsm(t *testing.T) {
 func subtGetGsmEntryId(t *testing.T) {
 	gT := newGsmTable(crmDB)
 
-	var maxId int
-	for k := range idGsmMap {
-		if k > maxId {
-			maxId = k
-		}
-	}
-
 	router := mux.NewRouter()
 	router.HandleFunc("/id/{id:[0-9]+}", gT.getGsmEntryId).Methods("GET")
 
@@ -329,6 +322,12 @@ func subtGetGsmEntryId(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
 	}
 
+	var maxId int
+	for k := range idGsmMap {
+		if k > maxId {
+			maxId = k
+		}
+	}
 	r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", maxId+1), nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, r)
@@ -352,4 +351,107 @@ func subtGetGsmEntryId(t *testing.T) {
 
 	}
 
+}
+
+func subtGetGsmEntryDate(t *testing.T) {
+	gT := newGsmTable(crmDB)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/date/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gT.getGsmEntryDate).Methods("GET")
+
+	r := httptest.NewRequest("GET", "/date/9999-99-99", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"data validation error"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	r = httptest.NewRequest("GET", "/date/"+time.Now().Format(time.DateOnly), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	dR := map[string]int{}
+	for _, v := range idGsmMap {
+		dR[v.DtReceiving.Time.Format(time.DateOnly)]++
+	}
+
+	for k, v := range dR {
+		var gsmEntries []models.GsmTableEntry
+		r = httptest.NewRequest("GET", "/date/"+k, nil)
+		w = httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+
+		json.NewDecoder(w.Body).Decode(&gsmEntries)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+		}
+
+		if len(gsmEntries) != v {
+			t.Errorf(" len(gsmEntries) %d != %d", len(idGsmMap), v)
+		}
+
+		for _, v := range gsmEntries {
+			if v.DtReceiving.Time.Format(time.DateOnly) != k {
+				t.Errorf("Got date=%s, wanted %s", v.DtReceiving.Time.Format(time.DateOnly), k)
+			}
+		}
+	}
+
+}
+
+func subtDelGsmEntryId(t *testing.T) {
+	gT := newGsmTable(crmDB)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/id/{id:[0-9]+}", gT.delGsmEntryId).Methods("DELETE")
+
+	r := httptest.NewRequest("DELETE", "/id/0", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"data validation error"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	var maxId int
+	for k := range idGsmMap {
+		if k > maxId {
+			maxId = k
+		}
+	}
+	r = httptest.NewRequest("DELETE", fmt.Sprintf("/id/%d", maxId+1), nil)
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	}
+
+	for k := range idGsmMap {
+
+		r = httptest.NewRequest("DELETE", fmt.Sprintf("/id/%d", k), nil)
+		w = httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+		if w.Code != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+		}
+	}
+
+	for k := range idGsmMap {
+
+		r = httptest.NewRequest("DELETE", fmt.Sprintf("/id/%d", k), nil)
+		w = httptest.NewRecorder()
+		router.ServeHTTP(w, r)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+		}
+
+		var errMes ErrorMessage
+		json.NewDecoder(w.Body).Decode(&errMes)
+		if errMes.Details != "it doesn't exist" {
+			t.Errorf(`Got %s, wanted "it doesn't exist"`, errMes)
+		}
+	}
 }
