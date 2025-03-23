@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/maaw77/crmsrvg/internal/auth"
-	"github.com/maaw77/crmsrvg/internal/handlers/v1"
 )
 
 func subHaldler(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +34,7 @@ func TestAuthMiddlewareBadToken(t *testing.T) {
 		return
 	}
 
-	var errA handlers.ErrorMessage
+	var errA errorMessage
 	json.NewDecoder(w.Body).Decode(&errA)
 	// t.Log(errA.Details)
 	if errA.Details != "token is not provided" {

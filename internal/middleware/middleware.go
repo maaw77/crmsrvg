@@ -9,8 +9,14 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/maaw77/crmsrvg/internal/auth"
-	"github.com/maaw77/crmsrvg/internal/handlers/v1"
 )
+
+// ErrorMessage is a detailed error message.
+type errorMessage struct {
+	// Description of the situation
+	// example: An error occurred
+	Details string `json:"details"`
+}
 
 // AuthMiddleware is an authentication middleware that verifies the session token..
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -21,11 +27,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			log.Println("token is not provided")
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(handlers.ErrorMessage{Details: "token is not provided"})
+			json.NewEncoder(w).Encode(errorMessage{Details: "token is not provided"})
 			return
 		}
 
-		log.Printf("token = %s\n", tokenSting[1])
+		// log.Printf("token = %s\n", tokenSting[1])
 		token, err := auth.VerifyToken(strings.TrimSpace(tokenSting[1]))
 
 		if token != nil && token.Valid {
@@ -40,13 +46,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		switch {
 		case errors.Is(err, jwt.ErrTokenMalformed):
 			log.Println("that's not even a token")
-			json.NewEncoder(w).Encode(handlers.ErrorMessage{Details: "that's not even a token"})
+			json.NewEncoder(w).Encode(errorMessage{Details: "that's not even a token"})
 		case errors.Is(err, jwt.ErrTokenExpired):
 			log.Println("token is expired")
-			json.NewEncoder(w).Encode(handlers.ErrorMessage{Details: "token is expired"})
+			json.NewEncoder(w).Encode(errorMessage{Details: "token is expired"})
 		default:
 			log.Println("couldn't handle this token")
-			json.NewEncoder(w).Encode(handlers.ErrorMessage{Details: "couldn't handle this token"})
+			json.NewEncoder(w).Encode(errorMessage{Details: "couldn't handle this token"})
 
 		}
 	})

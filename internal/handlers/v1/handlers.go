@@ -34,6 +34,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/maaw77/crmsrvg/internal/database"
+	"github.com/maaw77/crmsrvg/internal/middleware"
 )
 
 // ErrorMessage is a detailed error message.
@@ -102,9 +103,14 @@ func RegGsmHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 	gsmT := newGsmTable(srg)
 
 	gsmR := rMux.PathPrefix("/gsm").Subrouter()
-	gsmR.Methods("POST").HandlerFunc(gsmT.addEntryGsm)
-	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods("GET")
-	gsmR.HandleFunc("/date/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods("GET")
+	gsmR.Use(middleware.AuthMiddleware)
+
+	gsmR.Methods(http.MethodPost).HandlerFunc(gsmT.addEntryGsm)
+	gsmR.Methods(http.MethodPut).HandlerFunc(gsmT.updateEntryGsm)
+
+	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.getGsmEntryId).Methods(http.MethodGet)
+	gsmR.HandleFunc("/id/{id:[0-9]+}", gsmT.delGsmEntryId).Methods(http.MethodDelete)
+	gsmR.HandleFunc("/date/{date:[0-9]{4}-[0-9]{2}-[0-9]{2}}", gsmT.getGsmEntryDate).Methods(http.MethodGet)
 
 }
 
@@ -114,6 +120,6 @@ func RegUsersHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 
 	usersT := newUsersTable(srg)
 
-	rMux.HandleFunc("/reguser", usersT.regUser).Methods("POST")
-
+	rMux.HandleFunc("/reguser", usersT.regUser).Methods(http.MethodPost)
+	rMux.HandleFunc("/login", usersT.loginUser).Methods(http.MethodPost)
 }
