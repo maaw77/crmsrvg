@@ -7,41 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// // CrmDate is a date  based on the specified layout (time.DateOnly = "2006-01-02")
-// // swagger:strfmt date
-// type CrmDate struct {
-// 	time.Time
-// }
-
-// func (c *CrmDate) UnmarshalJSON(b []byte) (err error) {
-// 	inpS := strings.Trim(string(b), `"`)
-// 	if inpS == "" || inpS == "null" {
-// 		return nil
-// 	}
-// 	c.Time, err = time.Parse(time.DateOnly, inpS)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func (c CrmDate) MarshalJSON() ([]byte, error) {
-// 	return json.Marshal(c.Time.Format(time.DateOnly))
-// }
-
-// func (c CrmDate) String() string {
-// 	return c.Time.Format(time.DateOnly)
-// }
-
-// func (c *CrmDate) UnmarshalBinary(data []byte) error {
-// 	return c.Time.UnmarshalBinary(data)
-// }
-
-// func (c CrmDate) MarshalBinary() ([]byte, error) {
-// 	return c.Time.MarshalBinary()
-// }
-
-// swagger:model
+// idEntry represents the ID of the entry in the database.
 type IdEntry struct {
 	// ID of the database entry
 	//
@@ -51,8 +17,6 @@ type IdEntry struct {
 }
 
 // GsmTableEntry defines the structure for the entry in the GSM table
-//
-// swagger:model
 type GsmTableEntry struct {
 	// ID of the database entry
 	//

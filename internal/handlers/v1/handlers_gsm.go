@@ -50,19 +50,6 @@ type GsmTable struct {
 	validate *validator.Validate
 }
 
-// swagger:route POST /gsm_table GSM paramGsmTableEntry
-//
-// addEntryGsm
-//
-// Adds an entry to the GSM table
-//
-//	produces:
-//	- application/json
-//
-// responses:
-//		200:IdEntry
-// 		400:ErrorMessage
-
 // addEntryGsm adds an entry to the GSM table.
 func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
@@ -166,19 +153,6 @@ func (g *GsmTable) updateEntryGsm(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
-// swagger:route GET /gsm_table/id/{id} GSM paramIdEntry
-//
-// getIdEntryGsm
-//
-//  Receives an entry with a specified ID from the GSM table
-//
-//	produces:
-//	- application/json
-//
-// responses:
-//		200:GsmTableEntry
-// 		404:ErrorMessage
 
 // getEntryGsm receives an entry with a specified ID from the GSM table.
 func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {

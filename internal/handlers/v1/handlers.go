@@ -1,29 +1,5 @@
 // Package handlers CRM Server
-//
-// Documentation for REST API
-//
-//		Schemes: http
-//		Host:
-//		BasePath: /api/v1
-//		Version: 1.0.0
-//
-//		TermsOfService: http://swagger.io/terms/
-//		Contact: maaw@mai.ru
-//		License: MIT http://opensource.org/licenses/MIT
-//
-//		Consumes:
-//		- application/json
-//
-//		Produces:
-//		- application/json
-//
-//	     SecurityDefinitions:
-//	         api_key:
-//	             type: apiKey
-//	             name: Authorization
-//	             in: header
-//
-// swagger:meta
+
 package handlers
 
 import (
@@ -38,24 +14,11 @@ import (
 )
 
 // ErrorMessage is a detailed error message.
-// swagger:model ErrorMessage
 type ErrorMessage struct {
 	// Description of the situation
 	// example: An error occurred
 	Details string `json:"details"`
 }
-
-// swagger:route GET / defaultHandler
-//
-// defaultHandler
-//
-// Default Handler for everything that is not a match.
-// Works with all HTTP methods
-//
-// security:
-// - api_key: []
-// responses:
-//	404: ErrorMessage
 
 // DefaultHandler is executed when no route matches.
 func DefaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,16 +33,6 @@ func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 	// body := fmt.Sprintf(`%s is not supported`, r.URL.Path)
 	// fmt.Fprintf(w, "%s", body)
 }
-
-// swagger:route GET /* methodNotAllowed
-//
-// methodNotAllowed
-//
-// Default Handler for endpoints used with incorrect HTTP request method.
-// Works with all paths and HTTP methods
-//
-// responses:
-//	405: ErrorMessage
 
 // MethodNotAllowed is execode when the request method does not match the route.
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {

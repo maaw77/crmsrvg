@@ -1,6 +1,3 @@
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest generate spec --scan-models -o /home/maaw/work/Golang/crmsrvg/docs/swagger.yaml
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@latest validate /home/maaw/work/Golang/crmsrvg/docs/swagger.yaml
-
 package crm
 
 import (
@@ -11,7 +8,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 
 	"github.com/maaw77/crmsrvg/config"
@@ -45,11 +41,11 @@ func Run(pathConfig string) {
 
 	apiR := r.PathPrefix("/api/v1").Subrouter()
 
-	docR := apiR.Methods(http.MethodGet).Subrouter()
-	opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
-	sh := middleware.Redoc(opts, nil)
-	docR.Handle("/docs/", sh)
-	docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
+	// docR := apiR.Methods(http.MethodGet).Subrouter()
+	// opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
+	// sh := middleware.Redoc(opts, nil)
+	// docR.Handle("/docs/", sh)
+	// docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
 
 	// Uesrs
 	handlers.RegUsersHanlders(apiR, crmDB)
