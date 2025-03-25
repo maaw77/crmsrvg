@@ -22,7 +22,82 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/{path}": {
+            "get": {
+                "description": "Supports GET/POST/PUT/DELETE for any URL",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "A custom path handler is executed if no route matches",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "An arbitrary path",
+                        "name": "path",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Supports GET/POST/PUT/DELETE for any URL",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "A custom path handler is executed if the request method does not match the route.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "An arbitrary path",
+                        "name": "path",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.ErrorMessage": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "description": "Description of the situation\nexample: An error occurred",
+                    "type": "string",
+                    "example": "something's happened"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Enter the JWT token in the format: Bearer \u003ctoken\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

@@ -17,10 +17,20 @@ import (
 type ErrorMessage struct {
 	// Description of the situation
 	// example: An error occurred
-	Details string `json:"details"`
+	Details string `json:"details" example:"something's happened"`
 }
 
 // DefaultHandler is executed when no route matches.
+//
+//	@Summary		A custom path handler is executed if no route matches
+//	@Description	Supports GET/POST/PUT/DELETE for any URL
+//	@Failure		404	{object}	ErrorMessage
+//
+//	@Tags			default
+//	@Produce		json
+//
+//	@Router			/{path} [get]
+//	@Param			path	path	string	false	"An arbitrary path"
 func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("DefaultHandler Serving:", r.URL.Path, "from", r.Host, "with method", r.Method)
 
@@ -35,6 +45,16 @@ func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // MethodNotAllowed is execode when the request method does not match the route.
+//
+//	@Summary		A custom path handler is executed if the request method does not match the route.
+//	@Description	Supports GET/POST/PUT/DELETE for any URL
+//
+//	@Tags			default
+//	@Produce		json
+//
+//	@Failure		404	{object}	ErrorMessage
+//	@Router			/{path} [post]
+//	@Param			path	path	string	false	"An arbitrary path"
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	log.Println("methodNotAllowed (Serving:", r.URL.Path, "from", r.Host, "with method", r.Method)
 

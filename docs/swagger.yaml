@@ -1,4 +1,14 @@
 basePath: /api/v1
+definitions:
+  handlers.ErrorMessage:
+    properties:
+      details:
+        description: |-
+          Description of the situation
+          example: An error occurred
+        example: something's happened
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -11,5 +21,47 @@ info:
   termsOfService: http://swagger.io/terms/
   title: CRM server
   version: "1.0"
-paths: {}
+paths:
+  /{path}:
+    get:
+      description: Supports GET/POST/PUT/DELETE for any URL
+      parameters:
+      - description: An arbitrary path
+        in: path
+        name: path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      summary: A custom path handler is executed if no route matches
+      tags:
+      - default
+    post:
+      description: Supports GET/POST/PUT/DELETE for any URL
+      parameters:
+      - description: An arbitrary path
+        in: path
+        name: path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      summary: A custom path handler is executed if the request method does not match
+        the route.
+      tags:
+      - default
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter the JWT token in the format: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

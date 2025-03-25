@@ -16,23 +16,26 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
-// @title        CRM server
-// @version         1.0
-// @description     Fuel and Lubricants Accounting Service.
-// @termsOfService  http://swagger.io/terms/
+//	@title			CRM server
+//	@version		1.0
+//	@description	Fuel and Lubricants Accounting Service.
+//	@termsOfService	http://swagger.io/terms/
 
-// @contact.name   Maaw
-// @contact.email  maaw@mail.ru
+//	@contact.name	Maaw
+//	@contact.email	maaw@mail.ru
 
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
-// @BasePath  /api/v1
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 
-// @securitydefinitions.bearerauth BearerAuth
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Enter the JWT token in the format: Bearer <token>
 
-// @query.collection.format multi
+//	@query.collection.format	multi
 
 // Run runs the server with the specified parameters.
 func Run(pathConfig string) {
@@ -59,10 +62,11 @@ func Run(pathConfig string) {
 	r.MethodNotAllowedHandler = http.HandlerFunc(handlers.MethodNotAllowed)
 
 	apiR := r.PathPrefix("/api/v1").Subrouter()
-	// Маршрут для Swagger UI
-	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для документации JSON
-	))
+
+	// Route for Swagger UI.
+	apiR.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/api/v1/swagger/doc.json"), // URL для документации JSON
+	)).Methods(http.MethodGet)
 
 	// docR := apiR.Methods(http.MethodGet).Subrouter()
 	// opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
