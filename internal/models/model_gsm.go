@@ -9,11 +9,7 @@ import (
 
 // idEntry represents the ID of the entry in the database.
 type IdEntry struct {
-	// ID of the database entry
-	//
-	// required: true
-	// min: 1
-	ID int `json:"id"`
+	ID int `json:"id" minimum:"1"`
 }
 
 // GsmTableEntry defines the structure for the entry in the GSM table
@@ -22,7 +18,7 @@ type GsmTableEntry struct {
 	//
 	// required:false
 	// min:1
-	ID int `json:"id,omitempty" db:"id" `
+	ID int `json:"id,omitempty" db:"id"`
 
 	// Fuel receiving date
 	//

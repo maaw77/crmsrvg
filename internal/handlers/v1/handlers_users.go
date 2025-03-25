@@ -17,7 +17,7 @@ import (
 // AccessToken is a string that the OAuth client uses to make requests
 // to the resource server.(https://oauth.net/2/access-tokens/).
 type AccessToken struct {
-	Token string `json:"token"`
+	Token string `json:"token" validate:"required" example:"Some kind of JWT"`
 }
 
 type UsersTable struct {
@@ -25,7 +25,17 @@ type UsersTable struct {
 	validate *validator.Validate
 }
 
-// getEntryGsm receives an entry with a specified date from the GSM table.
+// regUser creates a new user.
+// @Summary Create a user
+// @Description Create a new user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param user body models.User true "User data"
+// @Success 201 {object} models.IdEntry
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {object} ErrorMessage
+// @Router /users [post]
 func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("regUser Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
@@ -70,7 +80,7 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	if err := enc.Encode(id); err != nil {
 		log.Println("error: ", err)
 	}

@@ -93,6 +93,6 @@ func RegUsersHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 
 	usersT := newUsersTable(srg)
 
-	rMux.HandleFunc("/reguser", usersT.regUser).Methods(http.MethodPost)
+	rMux.HandleFunc("/users", usersT.regUser).Methods(http.MethodPost)
 	rMux.HandleFunc("/login", usersT.loginUser).Methods(http.MethodPost)
 }

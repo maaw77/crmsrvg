@@ -2,26 +2,8 @@ package models
 
 // User represents the data of a registered user.
 type User struct {
-	// ID of the database entry
-	//
-	// required:false
-	// min:1
-	ID int `json:"id,omitempty" db:"id"`
-
-	// Username of a a registered user
-	//
-	// required: true
-	// example: Some username
-	Username string `json:"username" db:"username" validate:"required"`
-
-	// Password of a a registered user
-	//
-	// required: true
-	// example: my_password
-	Password string `json:"password" db:"password" validate:"required"`
-
-	// User's status
-	// required: false
-	// example: true (for admin)
-	Admin bool `json:"admin,omitempty" db:"admin" `
+	ID       int    `json:"id,omitempty" db:"id" minimum:"1"`
+	Username string `json:"username" db:"username" validate:"required" example:"Some username"`
+	Password string `json:"password" db:"password" validate:"required" example:"my_password"`
+	Admin    bool   `json:"admin,omitempty" db:"admin" example:"true (for admin)"`
 }

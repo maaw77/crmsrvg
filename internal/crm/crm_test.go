@@ -53,7 +53,7 @@ func TestCrm(t *testing.T) {
 
 	// First request.
 	payload := []byte(`{"username":"Kolya", "password":"something"}`)
-	req, err := http.NewRequest(http.MethodPost, ts.URL+"/api/v1"+"/reguser", bytes.NewReader(payload))
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/api/v1"+"/users", bytes.NewReader(payload))
 	if err != nil {
 		t.Fatal("Error:", err)
 	}
@@ -63,7 +63,7 @@ func TestCrm(t *testing.T) {
 		t.Fatal("Error:", err)
 	}
 
-	if status := resp.StatusCode; status != http.StatusOK {
+	if status := resp.StatusCode; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
