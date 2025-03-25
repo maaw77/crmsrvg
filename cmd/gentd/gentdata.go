@@ -40,7 +40,7 @@ func genData(numEvrthng, numRow int, fileName string) error {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for range numRow {
-		gsmE := models.GsmTableEntry{
+		gsmE := models.GsmEntryResponse{
 			DtReceiving:  dateСr[r.Intn(2)],
 			DtCrch:       dateCh[r.Intn(2)],
 			Site:         "Site_" + strconv.Itoa(r.Intn(numEvrthng)+1),
@@ -62,7 +62,7 @@ func genData(numEvrthng, numRow int, fileName string) error {
 	return nil
 }
 
-func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
+func readData(fileName string) (gsmEntries []models.GsmEntryResponse, err error) {
 	// fmt.Println("###############################")
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -73,7 +73,7 @@ func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
 	dec := json.NewDecoder(f)
 
 	for {
-		gsmE := models.GsmTableEntry{}
+		gsmE := models.GsmEntryResponse{}
 		err = dec.Decode(&gsmE)
 
 		if err == io.EOF {

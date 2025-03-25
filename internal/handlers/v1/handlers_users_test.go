@@ -17,7 +17,7 @@ func subtRegUeser(t *testing.T) {
 
 	uT := newUsersTable(crmDB)
 
-	uesers := []models.User{{Username: "User_1", Password: "Password_1"},
+	uesers := []models.UserResponse{{Username: "User_1", Password: "Password_1"},
 		{Username: "User_2", Password: "Password_2", Admin: true},
 	}
 	// t.Log(uesers)
@@ -33,9 +33,9 @@ func subtRegUeser(t *testing.T) {
 		handlers.ServeHTTP(w, r)
 
 		// Check the HTTP status code is what we expect.
-		if status := w.Code; status != http.StatusOK {
+		if status := w.Code; status != http.StatusCreated {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, http.StatusOK)
+				status, http.StatusCreated)
 			continue
 		}
 
@@ -77,7 +77,7 @@ func subtRegUeser(t *testing.T) {
 	}
 
 	// If the username and/or password is not specified(empty).
-	uesers = []models.User{{Username: "User_3", Password: ""},
+	uesers = []models.UserResponse{{Username: "User_3", Password: ""},
 		{Username: "", Password: "Password_dedde", Admin: true},
 	}
 	for _, v := range uesers {
@@ -109,7 +109,7 @@ func subtLoginUsers(t *testing.T) {
 	uT := newUsersTable(crmDB)
 
 	// If everything is ok.
-	uesers := []models.User{{Username: "User_1", Password: "Password_1"},
+	uesers := []models.UserResponse{{Username: "User_1", Password: "Password_1"},
 		{Username: "User_2", Password: "Password_2", Admin: true},
 	}
 	for _, v := range uesers {
@@ -166,7 +166,7 @@ func subtLoginUsers(t *testing.T) {
 	}
 
 	// If the user is not registered.
-	uesers = []models.User{{Username: "User_3", Password: "Password_3"},
+	uesers = []models.UserResponse{{Username: "User_3", Password: "Password_3"},
 		{Username: "User_4", Password: "Password_4", Admin: true},
 	}
 	for _, v := range uesers {
@@ -196,7 +196,7 @@ func subtLoginUsers(t *testing.T) {
 	}
 
 	// If an incorrect password is entered
-	uesers = []models.User{{Username: "User_1", Password: "Password_8"},
+	uesers = []models.UserResponse{{Username: "User_1", Password: "Password_8"},
 		{Username: "User_2", Password: "Password_", Admin: true},
 	}
 
@@ -227,7 +227,7 @@ func subtLoginUsers(t *testing.T) {
 	}
 
 	// If the username and/or password is not specified(empty).
-	uesers = []models.User{{Username: "User_3", Password: ""},
+	uesers = []models.UserResponse{{Username: "User_3", Password: ""},
 		{Username: "", Password: "Password_dedde", Admin: true},
 	}
 	for _, v := range uesers {

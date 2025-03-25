@@ -26,23 +26,24 @@ type UsersTable struct {
 }
 
 // regUser creates a new user.
-// @Summary Create a user
-// @Description Create a new user
-// @Tags users
-// @Accept  json
-// @Produce  json
-// @Param user body models.User true "User data"
-// @Success 201 {object} models.IdEntry
-// @Failure 400 {object} ErrorMessage
-// @Failure 500 {object} ErrorMessage
-// @Router /users [post]
+//
+//	@Summary		Create a user
+//	@Description	Create a new user
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		models.UserRequest	true	"User data"
+//	@Success		201		{object}	models.IdEntry
+//	@Failure		400		{object}	ErrorMessage
+//	@Failure		500		{object}	ErrorMessage
+//	@Router			/users [post]
 func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("regUser Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
 
 	enc := json.NewEncoder(w)
 
-	var user models.User
+	var user models.UserResponse
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -88,11 +89,24 @@ func (u *UsersTable) regUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // loginUser identifies and authenticates the user. If successful, it returns an access token.
+//
+//	@Summary		User identification and authentication
+//	@Description	User identification and authentication. If successful, it returns an access token.
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		models.UserRequest	true	"User data"
+//	@Success		200		{object}	AccessToken
+//	@Failure		400		{object}	ErrorMessage
+//	@Failure		404		{object}	ErrorMessage
+//	@Failure		401		{object}	ErrorMessage
+//	@Failure		500		{object}	ErrorMessage
+//	@Router			/users/login [post]
 func (u *UsersTable) loginUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("loginUser Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
 
-	var user models.User
+	var user models.UserResponse
 	enc := json.NewEncoder(w)
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {

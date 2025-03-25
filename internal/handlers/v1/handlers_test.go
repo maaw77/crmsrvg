@@ -12,7 +12,7 @@ import (
 
 var (
 	idUsers  = []int{}
-	idGsmMap = map[int]models.GsmTableEntry{}
+	idGsmMap = map[int]models.GsmEntryResponse{}
 	crmDB    *database.CrmDatabase
 )
 

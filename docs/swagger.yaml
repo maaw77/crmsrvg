@@ -1,13 +1,98 @@
 basePath: /api/v1
 definitions:
+  handlers.AccessToken:
+    properties:
+      token:
+        example: Some kind of JWT
+        type: string
+    required:
+    - token
+    type: object
   handlers.ErrorMessage:
     properties:
       details:
-        description: |-
-          Description of the situation
-          example: An error occurred
-        example: something's happened
+        description: Description of the situation
+        example: An error occurred
         type: string
+    type: object
+  models.GsmeEntryRequest:
+    properties:
+      been_changed:
+        description: The status of the fuel intake record in the database (changed
+          or not)
+        example: true
+        type: boolean
+      contractor:
+        description: Name of the fuel carrier
+        example: Name of the fuel carrier
+        type: string
+      dt_crch:
+        description: Fuel receiving  date
+        example: "2025-01-02"
+        format: date
+        type: string
+      dt_receiving:
+        description: Fuel receiving date
+        example: "2024-11-15"
+        format: date
+        type: string
+      guid:
+        description: The global unique identifier of the record
+        example: 6F9619FF-8B86-D011-B42D-00CF4FC964F
+        type: string
+      income_kg:
+        description: The amount of fuel received at the warehouse in kilograms
+        example: 362.2
+        type: number
+      license_plate:
+        description: The state number of the transport that delivered the fuel
+        example: ' A902RUS'
+        type: string
+      operator:
+        description: Last name of the operator who took the fuel to the warehouse
+        example: Last name of the operator
+        type: string
+      provider:
+        description: Name of the fuel provider
+        example: Name of the fuel provider
+        type: string
+      site:
+        description: Name of the mining site
+        example: Name of the mining site
+        type: string
+      status:
+        description: Fuel loading status
+        example: Uploaded
+        type: string
+    required:
+    - contractor
+    - dt_receiving
+    - guid
+    - income_kg
+    - license_plate
+    - operator
+    - provider
+    - site
+    - status
+    type: object
+  models.IdEntry:
+    properties:
+      id:
+        description: ID of the entry in the database
+        minimum: 1
+        type: integer
+    type: object
+  models.UserRequest:
+    properties:
+      password:
+        example: my_password
+        type: string
+      username:
+        example: Some username
+        type: string
+    required:
+    - password
+    - username
     type: object
 host: localhost:8080
 info:
@@ -58,6 +143,111 @@ paths:
         the route.
       tags:
       - default
+  /gsm:
+    post:
+      consumes:
+      - application/json
+      description: Add an entry to the GSM table
+      parameters:
+      - description: GSM data
+        in: body
+        name: GsmEntry
+        required: true
+        schema:
+          $ref: '#/definitions/models.GsmeEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.IdEntry'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      security:
+      - BearerAuth: []
+      summary: Add an entry
+      tags:
+      - gsm
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.IdEntry'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      summary: Create a user
+      tags:
+      - users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: User identification and authentication. If successful, it returns
+        an access token.
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AccessToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      summary: User identification and authentication
+      tags:
+      - users
 securityDefinitions:
   BearerAuth:
     description: 'Enter the JWT token in the format: Bearer <token>'

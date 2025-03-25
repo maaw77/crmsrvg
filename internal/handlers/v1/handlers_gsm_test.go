@@ -17,7 +17,7 @@ import (
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
-func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
+func gsmEntriesEqual(a, b models.GsmEntryResponse) bool {
 
 	switch {
 	case a.ID != b.ID:
@@ -72,7 +72,7 @@ func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
 	return true
 }
 
-func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
+func readData(fileName string) (gsmEntries []models.GsmEntryResponse, err error) {
 	// fmt.Println("###############################")
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -83,7 +83,7 @@ func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
 	dec := json.NewDecoder(f)
 
 	for {
-		gsmE := models.GsmTableEntry{}
+		gsmE := models.GsmEntryResponse{}
 		err = dec.Decode(&gsmE)
 
 		if err == io.EOF {
@@ -101,7 +101,7 @@ func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
 
 func subtAddEntryBadReq(t *testing.T) {
 	gT := newGsmTable(crmDB)
-	user := models.User{Username: "kjdlk", Password: "jldkdj"}
+	user := models.UserResponse{Username: "kjdlk", Password: "jldkdj"}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/gsm", gT.addEntryGsm).Methods("POST")
@@ -185,9 +185,9 @@ func subtAddEntryGoodReq(t *testing.T) {
 		// handler(w, r)
 		router.ServeHTTP(w, r)
 
-		if w.Code != http.StatusOK {
+		if w.Code != http.StatusCreated {
 			t.Errorf("handler returned wrong status code: got %v want %v",
-				w.Code, http.StatusOK)
+				w.Code, http.StatusCreated)
 		}
 
 		var id models.IdEntry
@@ -336,7 +336,7 @@ func subtGetGsmEntryId(t *testing.T) {
 	}
 
 	for k, v := range idGsmMap {
-		var inGsmEntry models.GsmTableEntry
+		var inGsmEntry models.GsmEntryResponse
 		r = httptest.NewRequest("GET", fmt.Sprintf("/id/%d", k), nil)
 		w = httptest.NewRecorder()
 		router.ServeHTTP(w, r)
@@ -379,7 +379,7 @@ func subtGetGsmEntryDate(t *testing.T) {
 	}
 
 	for k, v := range dR {
-		var gsmEntries []models.GsmTableEntry
+		var gsmEntries []models.GsmEntryResponse
 		r = httptest.NewRequest("GET", "/date/"+k, nil)
 		w = httptest.NewRecorder()
 		router.ServeHTTP(w, r)

@@ -16,8 +16,7 @@ import (
 // ErrorMessage is a detailed error message.
 type ErrorMessage struct {
 	// Description of the situation
-	// example: An error occurred
-	Details string `json:"details" example:"something's happened"`
+	Details string `json:"details" example:"An error occurred"`
 }
 
 // DefaultHandler is executed when no route matches.
@@ -94,5 +93,5 @@ func RegUsersHanlders(rMux *mux.Router, srg *database.CrmDatabase) {
 	usersT := newUsersTable(srg)
 
 	rMux.HandleFunc("/users", usersT.regUser).Methods(http.MethodPost)
-	rMux.HandleFunc("/login", usersT.loginUser).Methods(http.MethodPost)
+	rMux.HandleFunc("/users/login", usersT.loginUser).Methods(http.MethodPost)
 }

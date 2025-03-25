@@ -9,7 +9,7 @@ import (
 )
 
 func subBenchmarkGetIdOrCreateSites(b *testing.B) {
-	gsmE := models.GsmTableEntry{}
+	gsmE := models.GsmEntryResponse{}
 	payload := []byte(`{"dt_receiving": "2023-12-11",
 
 				"dt_crch": "0001-01-01",

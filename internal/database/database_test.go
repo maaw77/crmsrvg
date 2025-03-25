@@ -15,7 +15,7 @@ var (
 
 	// crmDB is the current instance of the CrmDatabase.
 	crmDB         *CrmDatabase
-	gsmEntriesMap = make(map[int]models.GsmTableEntry)
+	gsmEntriesMap = make(map[int]models.GsmEntryResponse)
 )
 
 func subtNewCrmDatabaseEmty(t *testing.T) {
@@ -87,7 +87,7 @@ func TestGsmTable(t *testing.T) {
 	t.Run("UpdateRow", subtUpdateRowGsmTable)
 	t.Run("DelRow", subtDelRowGsmTable)
 
-	gsmEntriesMap = make(map[int]models.GsmTableEntry)
+	gsmEntriesMap = make(map[int]models.GsmEntryResponse)
 
 	// crmDB.DBpool.Exec(context.Background(), "DELETE FROM gsm_table;")
 

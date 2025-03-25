@@ -65,14 +65,8 @@ func Run(pathConfig string) {
 
 	// Route for Swagger UI.
 	apiR.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/api/v1/swagger/doc.json"), // URL для документации JSON
+		httpSwagger.URL("http://localhost:8080/api/v1/swagger/doc.json"), // URL for JSON documentation
 	)).Methods(http.MethodGet)
-
-	// docR := apiR.Methods(http.MethodGet).Subrouter()
-	// opts := middleware.RedocOpts{BasePath: "/api/v1", SpecURL: "/api/v1/docs/swagger.yaml"}
-	// sh := middleware.Redoc(opts, nil)
-	// docR.Handle("/docs/", sh)
-	// docR.Handle("/docs/swagger.yaml", http.StripPrefix("/api/v1", http.FileServer(http.Dir("."))))
 
 	// Uesrs
 	handlers.RegUsersHanlders(apiR, crmDB)

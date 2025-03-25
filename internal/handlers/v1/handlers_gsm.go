@@ -17,33 +17,6 @@ import (
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
-// {"dt_receiving": "2026-01-02", "dt_crch": "1988-02-22", "site": "SITE_1", "income_kg": 26442.70, "operator": "OPERATOR_1", "provider": "PROVIDER_1", "contractor": "CONTRACTOR_1", "license_plate": "A902RUS", "status": "Uploaded", "been_changed": false}
-// curl -v -X POST -d '{"dt_receiving": "2026-01-02", "dt_crch": "1988-02-22", "site": "SITE_1", "income_kg": 26442.70, "operator": "OPERATOR_1", "provider": "PROVIDER_1", "contractor": "CONTRACTOR_1", "license_plate": "A902RUS", "status": "Uploaded", "been_changed": false}'  localhost:8080/api/v1/gsm_table/
-
-// swagger:parameters paramIdEntry
-type _ struct {
-	// ID of the database entry
-	// in:path
-	// min: 1
-	ID int `json:"id"`
-}
-
-// swagger:parameters paramCrmDate
-type _ struct {
-	// It is a date  based on the specified layout ("2006-01-02")
-	//
-	// required: true
-	// in:path
-	DATE pgtype.Date `json:"date"`
-}
-
-// swagger:parameters paramGsmTableEntry
-type _ struct {
-	// The structure for the entry in the GSM table
-	// in:body
-	Body models.GsmTableEntry
-}
-
 // GsmTable this defines a structure with configured data storage and request handlers.
 type GsmTable struct {
 	storage  *db.CrmDatabase
@@ -51,13 +24,28 @@ type GsmTable struct {
 }
 
 // addEntryGsm adds an entry to the GSM table.
+//
+//	@Summary		Add an entry
+//	@Description	Add an entry to the GSM table
+//	@Tags			gsm
+//	@Accept			json
+//	@Produce		json
+//
+//	@Security		BearerAuth
+//
+//	@Param			GsmEntry	body		models.GsmeEntryRequest	true	"GSM data"
+//	@Success		201			{object}	models.IdEntry
+//	@Failure		400			{object}	ErrorMessage
+//	@Failure		401			{object}	ErrorMessage
+//	@Failure		500			{object}	ErrorMessage
+//	@Router			/gsm [post]
 func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("addEntryGsm Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
 
 	encod := json.NewEncoder(w)
 
-	var gsmEntry models.GsmTableEntry
+	var gsmEntry models.GsmEntryResponse
 	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -95,7 +83,7 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	if err := encod.Encode(id); err != nil {
 		log.Println("error: ", err)
 	}
@@ -109,7 +97,7 @@ func (g *GsmTable) updateEntryGsm(w http.ResponseWriter, r *http.Request) {
 
 	encod := json.NewEncoder(w)
 
-	var gsmEntry models.GsmTableEntry
+	var gsmEntry models.GsmEntryResponse
 	if err := json.NewDecoder(r.Body).Decode(&gsmEntry); err != nil {
 		log.Println("error: ", err)
 		w.WriteHeader(http.StatusBadRequest)

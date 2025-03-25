@@ -14,7 +14,7 @@ import (
 	"github.com/maaw77/crmsrvg/internal/models"
 )
 
-func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
+func gsmEntriesEqual(a, b models.GsmEntryResponse) bool {
 
 	switch {
 	case a.ID != b.ID:
@@ -69,7 +69,7 @@ func gsmEntriesEqual(a, b models.GsmTableEntry) bool {
 	return true
 }
 
-func changGsmEnry(gsmE *models.GsmTableEntry) {
+func changGsmEnry(gsmE *models.GsmEntryResponse) {
 	gsmE.DtReceiving = pgtype.Date{Time: time.Now(), Valid: true}
 	gsmE.DtCrch = pgtype.Date{Time: time.Now(), Valid: true}
 	gsmE.Site = gsmE.Site + "100"
@@ -77,7 +77,7 @@ func changGsmEnry(gsmE *models.GsmTableEntry) {
 	gsmE.BeenChanged = !(gsmE.BeenChanged)
 }
 
-func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
+func readData(fileName string) (gsmEntries []models.GsmEntryResponse, err error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		return
@@ -87,7 +87,7 @@ func readData(fileName string) (gsmEntries []models.GsmTableEntry, err error) {
 	dec := json.NewDecoder(f)
 
 	for {
-		gsmE := models.GsmTableEntry{}
+		gsmE := models.GsmEntryResponse{}
 		err = dec.Decode(&gsmE)
 
 		if err == io.EOF {
@@ -214,7 +214,7 @@ func subtDelRowGsmTable(t *testing.T) {
 }
 
 func subtUpdateRowGsmTable(t *testing.T) {
-	gsmE := models.GsmTableEntry{}
+	gsmE := models.GsmEntryResponse{}
 	b := []byte(`{"dt_receiving": "2023-12-11",
 
 				"dt_crch": "0001-01-01",

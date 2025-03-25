@@ -74,7 +74,7 @@ func TestCrm(t *testing.T) {
 
 	// Next request.
 	payload = []byte(`{"username":"Kolya", "password":"something"}`)
-	req, err = http.NewRequest(http.MethodPost, ts.URL+"/api/v1"+"/login", bytes.NewReader(payload))
+	req, err = http.NewRequest(http.MethodPost, ts.URL+"/api/v1"+"/users/login", bytes.NewReader(payload))
 	if err != nil {
 		t.Fatal("Error:", err)
 	}
@@ -126,7 +126,7 @@ func TestCrm(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error:", err)
 	}
-	if status := resp.StatusCode; status != http.StatusOK {
+	if status := resp.StatusCode; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
@@ -152,7 +152,7 @@ func TestCrm(t *testing.T) {
 			status, http.StatusNotFound)
 	}
 
-	gsmE := models.GsmTableEntry{}
+	gsmE := models.GsmEntryResponse{}
 	json.NewDecoder(resp.Body).Decode(&gsmE)
 	if gsmE.GUID != "96935cf8-06ee-421a-af26-8f720eb9bc39" {
 		t.Error("Invalid GUID")
@@ -176,7 +176,7 @@ func TestCrm(t *testing.T) {
 			status, http.StatusNotFound)
 	}
 
-	gsmEntries := []models.GsmTableEntry{}
+	gsmEntries := []models.GsmEntryResponse{}
 	json.NewDecoder(resp.Body).Decode(&gsmEntries)
 	guid := gsmEntries[0].GUID
 	if guid != "96935cf8-06ee-421a-af26-8f720eb9bc39" {

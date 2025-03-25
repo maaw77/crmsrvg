@@ -23,6 +23,167 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/gsm": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add an entry to the GSM table",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "gsm"
+                ],
+                "summary": "Add an entry",
+                "parameters": [
+                    {
+                        "description": "GSM data",
+                        "name": "GsmEntry",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.GsmeEntryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.IdEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Create a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create a user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.IdEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "User identification and authentication. If successful, it returns an access token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "User identification and authentication",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccessToken"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/{path}": {
             "get": {
                 "description": "Supports GET/POST/PUT/DELETE for any URL",
@@ -79,13 +240,125 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.AccessToken": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "Some kind of JWT"
+                }
+            }
+        },
         "handlers.ErrorMessage": {
             "type": "object",
             "properties": {
                 "details": {
-                    "description": "Description of the situation\nexample: An error occurred",
+                    "description": "Description of the situation",
                     "type": "string",
-                    "example": "something's happened"
+                    "example": "An error occurred"
+                }
+            }
+        },
+        "models.GsmeEntryRequest": {
+            "type": "object",
+            "required": [
+                "contractor",
+                "dt_receiving",
+                "guid",
+                "income_kg",
+                "license_plate",
+                "operator",
+                "provider",
+                "site",
+                "status"
+            ],
+            "properties": {
+                "been_changed": {
+                    "description": "The status of the fuel intake record in the database (changed or not)",
+                    "type": "boolean",
+                    "example": true
+                },
+                "contractor": {
+                    "description": "Name of the fuel carrier",
+                    "type": "string",
+                    "example": "Name of the fuel carrier"
+                },
+                "dt_crch": {
+                    "description": "Fuel receiving  date",
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-01-02"
+                },
+                "dt_receiving": {
+                    "description": "Fuel receiving date",
+                    "type": "string",
+                    "format": "date",
+                    "example": "2024-11-15"
+                },
+                "guid": {
+                    "description": "The global unique identifier of the record",
+                    "type": "string",
+                    "example": "6F9619FF-8B86-D011-B42D-00CF4FC964F"
+                },
+                "income_kg": {
+                    "description": "The amount of fuel received at the warehouse in kilograms",
+                    "type": "number",
+                    "example": 362.2
+                },
+                "license_plate": {
+                    "description": "The state number of the transport that delivered the fuel",
+                    "type": "string",
+                    "example": " A902RUS"
+                },
+                "operator": {
+                    "description": "Last name of the operator who took the fuel to the warehouse",
+                    "type": "string",
+                    "example": "Last name of the operator"
+                },
+                "provider": {
+                    "description": "Name of the fuel provider",
+                    "type": "string",
+                    "example": "Name of the fuel provider"
+                },
+                "site": {
+                    "description": "Name of the mining site",
+                    "type": "string",
+                    "example": "Name of the mining site"
+                },
+                "status": {
+                    "description": "Fuel loading status",
+                    "type": "string",
+                    "example": "Uploaded"
+                }
+            }
+        },
+        "models.IdEntry": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID of the entry in the database",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "models.UserRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "my_password"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Some username"
                 }
             }
         }

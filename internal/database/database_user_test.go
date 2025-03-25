@@ -9,7 +9,7 @@ import (
 )
 
 func subtUserTable(t *testing.T) {
-	user := models.User{Username: "Vasya", Password: "abracadabra"}
+	user := models.UserResponse{Username: "Vasya", Password: "abracadabra"}
 	id, err := crmDB.AddUser(context.Background(), user)
 	if err != nil {
 		t.Errorf("%s != nil", err)
