@@ -33,7 +33,7 @@ import (
 //	@securityDefinitions.apikey	BearerAuth
 //	@in							header
 //	@name						Authorization
-//	@description				Enter the JWT token in the format: Bearer <token>
+//	@description				Enter the JWT token in the format: Bearer Access token
 
 //	@query.collection.format	multi
 

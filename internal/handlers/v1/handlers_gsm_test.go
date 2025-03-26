@@ -425,8 +425,8 @@ func subtDelGsmEntryId(t *testing.T) {
 	r = httptest.NewRequest("DELETE", fmt.Sprintf("/id/%d", maxId+1), nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, r)
-	if w.Code != http.StatusBadRequest && w.Body.String() != `{"details":"it doesn't exist"}` {
-		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+	if w.Code != http.StatusNotFound && w.Body.String() != `{"details":"it doesn't exist"}` {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusNotFound)
 	}
 
 	for k := range idGsmMap {
@@ -444,8 +444,8 @@ func subtDelGsmEntryId(t *testing.T) {
 		r = httptest.NewRequest("DELETE", fmt.Sprintf("/id/%d", k), nil)
 		w = httptest.NewRecorder()
 		router.ServeHTTP(w, r)
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusBadRequest)
+		if w.Code != http.StatusNotFound {
+			t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusNotFound)
 		}
 
 		var errMes ErrorMessage

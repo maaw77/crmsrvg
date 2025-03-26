@@ -38,7 +38,7 @@ type GsmEntryResponse struct {
 	// The status of the fuel intake record in the database (changed or not)
 	BeenChanged bool `json:"been_changed" db:"been_changed" example:"false"`
 	// The global unique identifier of the record
-	GUID string `json:"guid" db:"guid" validate:"required,uuid" example:"6F9619FF-8B86-D011-B42D-00CF4FC964F"`
+	GUID string `json:"guid" db:"guid" validate:"required,uuid" example:"593ff941-405e-4afd-9eec-f8605a14351a"`
 }
 
 // GsmTableEntry
@@ -66,7 +66,7 @@ type GsmeEntryRequest struct {
 	// The status of the fuel intake record in the database (changed or not)
 	BeenChanged bool `json:"been_changed" db:"been_changed" example:"true"`
 	// The global unique identifier of the record
-	GUID string `json:"guid" db:"guid" validate:"required,uuid" example:"6F9619FF-8B86-D011-B42D-00CF4FC964F"`
+	GUID string `json:"guid" db:"guid" validate:"required,uuid" example:"593ff941-405e-4afd-9eec-f8605a14351a"`
 }
 
 // It's Stringer interface (https://pkg.go.dev/fmt@go1.24.0#Stringer).

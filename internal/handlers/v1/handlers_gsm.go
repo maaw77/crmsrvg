@@ -91,6 +91,21 @@ func (g *GsmTable) addEntryGsm(w http.ResponseWriter, r *http.Request) {
 }
 
 // updateEntryGsm updates an entry in the GSM table with the specified GUID.
+//
+//	@Summary		Update an entry
+//	@Description	Update an entry  in the GSM table with the specified GUID
+//	@Tags			gsm
+//	@Accept			json
+//	@Produce		json
+//
+//	@Security		BearerAuth
+//
+//	@Param			GsmEntry	body		models.GsmeEntryRequest	true	"GSM data"
+//	@Success		200			{object}	models.IdEntry
+//	@Failure		400			{object}	ErrorMessage
+//	@Failure		401			{object}	ErrorMessage
+//	@Failure		500			{object}	ErrorMessage
+//	@Router			/gsm [put]
 func (g *GsmTable) updateEntryGsm(w http.ResponseWriter, r *http.Request) {
 	log.Println("updateEntryGsm Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
@@ -143,6 +158,22 @@ func (g *GsmTable) updateEntryGsm(w http.ResponseWriter, r *http.Request) {
 }
 
 // getEntryGsm receives an entry with a specified ID from the GSM table.
+//
+//	@Summary		Receive an entry
+//	@Description	Receive an entry with a specified ID from the GSM table
+//	@Tags			gsm
+//	@Accept			json
+//	@Produce		json
+//
+//	@Security		BearerAuth
+//
+//	@Param			id	path		int	true	"ID"
+//	@Success		200	{object}	models.GsmEntryResponse
+//	@Failure		400	{object}	ErrorMessage
+//	@Failure		401	{object}	ErrorMessage
+//	@Failure		404	{object}	ErrorMessage
+//	@Failure		500	{object}	ErrorMessage
+//	@Router			/gsm/id/{id} [get]
 func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
@@ -192,20 +223,23 @@ func (g *GsmTable) getGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	encod.Encode(gsmEntry)
 }
 
-// swagger:route GET /gsm_table/date/{date} GSM paramCrmDate
-//
-// getDateEntryGsm
-//
-//  Receives aan entry with a specified date from the GSM table
-//
-//	produces:
-//	- application/json
-//
-// responses:
-//		200:GsmTableEntry
-// 		404:ErrorMessage
-
 // getEntryGsm receives an entry with a specified date from the GSM table.
+//
+//	@Summary		Receive an entry
+//	@Description	Receive an entry with  a specified date from the GSM table
+//	@Tags			gsm
+//	@Accept			json
+//	@Produce		json
+//
+//	@Security		BearerAuth
+//
+//	@Param			date	path		string	true	"Date in the format YYYY-MM-DD"	Format(date)
+//	@Success		200		{object}	[]models.GsmEntryResponse
+//	@Failure		400		{object}	ErrorMessage
+//	@Failure		401		{object}	ErrorMessage
+//	@Failure		404		{object}	ErrorMessage
+//	@Failure		500		{object}	ErrorMessage
+//	@Router			/gsm/date/{date} [get]
 func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 	w.Header().Set("Content-Type", "application/json")
@@ -250,7 +284,23 @@ func (g *GsmTable) getGsmEntryDate(w http.ResponseWriter, r *http.Request) {
 	encod.Encode(gsmEntries)
 }
 
-// delGsmEntryId deletess an entry with a specified ID from the GSM table.
+// delGsmEntryId deletes an entry with a specified ID from the GSM table
+//
+//	@Summary		Delete an entry
+//	@Description	Delete an entry with a specified ID from the GSM table
+//	@Tags			gsm
+//	@Accept			json
+//	@Produce		json
+//
+//	@Security		BearerAuth
+//
+//	@Param			id	path		int	true	"ID"
+//	@Success		200	{object}	models.IdEntry
+//	@Failure		400	{object}	ErrorMessage
+//	@Failure		401	{object}	ErrorMessage
+//	@Failure		404	{object}	ErrorMessage
+//	@Failure		500	{object}	ErrorMessage
+//	@Router			/gsm/id/{id} [delete]
 func (g *GsmTable) delGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	log.Println("getEntryGsm Serving:", r.URL.Path, "from", r.Host)
 
@@ -283,7 +333,7 @@ func (g *GsmTable) delGsmEntryId(w http.ResponseWriter, r *http.Request) {
 	err = g.storage.DelRowGsmTable(r.Context(), id)
 	switch {
 	case errors.Is(err, db.ErrNotExist):
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		if err := encod.Encode(ErrorMessage{Details: db.ErrNotExist.Error()}); err != nil {
 			log.Println("error: ", err)
 		}

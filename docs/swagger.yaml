@@ -15,6 +15,70 @@ definitions:
         example: An error occurred
         type: string
     type: object
+  models.GsmEntryResponse:
+    properties:
+      been_changed:
+        description: The status of the fuel intake record in the database (changed
+          or not)
+        example: false
+        type: boolean
+      contractor:
+        description: Name of the fuel carrier
+        example: Name of the fuel carrier
+        type: string
+      dt_crch:
+        description: Fuel receiving  date
+        example: "2025-01-02"
+        format: date
+        type: string
+      dt_receiving:
+        description: Fuel receiving date
+        example: "2024-11-15"
+        format: date
+        type: string
+      guid:
+        description: The global unique identifier of the record
+        example: 593ff941-405e-4afd-9eec-f8605a14351a
+        type: string
+      id:
+        description: ID of the database entry
+        minimum: 1
+        type: integer
+      income_kg:
+        description: The amount of fuel received at the warehouse in kilograms
+        example: 362.2
+        type: number
+      license_plate:
+        description: The state number of the transport that delivered the fuel
+        example: ' A902RUS'
+        type: string
+      operator:
+        description: Last name of the operator who took the fuel to the warehouse
+        example: Last name of the operator
+        type: string
+      provider:
+        description: Name of the fuel provider
+        example: Name of the fuel provider
+        type: string
+      site:
+        description: Name of the mining site
+        example: Name of the mining site
+        type: string
+      status:
+        description: Fuel loading status
+        example: Uploaded
+        type: string
+    required:
+    - contractor
+    - dt_receiving
+    - guid
+    - income_kg
+    - license_plate
+    - operator
+    - provider
+    - site
+    - status
+    type: object
   models.GsmeEntryRequest:
     properties:
       been_changed:
@@ -38,7 +102,7 @@ definitions:
         type: string
       guid:
         description: The global unique identifier of the record
-        example: 6F9619FF-8B86-D011-B42D-00CF4FC964F
+        example: 593ff941-405e-4afd-9eec-f8605a14351a
         type: string
       income_kg:
         description: The amount of fuel received at the warehouse in kilograms
@@ -179,6 +243,160 @@ paths:
       summary: Add an entry
       tags:
       - gsm
+    put:
+      consumes:
+      - application/json
+      description: Update an entry  in the GSM table with the specified GUID
+      parameters:
+      - description: GSM data
+        in: body
+        name: GsmEntry
+        required: true
+        schema:
+          $ref: '#/definitions/models.GsmeEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.IdEntry'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      security:
+      - BearerAuth: []
+      summary: Update an entry
+      tags:
+      - gsm
+  /gsm/date/{date}:
+    get:
+      consumes:
+      - application/json
+      description: Receive an entry with  a specified date from the GSM table
+      parameters:
+      - description: Date in the format YYYY-MM-DD
+        format: date
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GsmEntryResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      security:
+      - BearerAuth: []
+      summary: Receive an entry
+      tags:
+      - gsm
+  /gsm/id/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an entry with a specified ID from the GSM table
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.IdEntry'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      security:
+      - BearerAuth: []
+      summary: Delete an entry
+      tags:
+      - gsm
+    get:
+      consumes:
+      - application/json
+      description: Receive an entry with a specified ID from the GSM table
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GsmEntryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorMessage'
+      security:
+      - BearerAuth: []
+      summary: Receive an entry
+      tags:
+      - gsm
   /users:
     post:
       consumes:
@@ -250,7 +468,7 @@ paths:
       - users
 securityDefinitions:
   BearerAuth:
-    description: 'Enter the JWT token in the format: Bearer <token>'
+    description: 'Enter the JWT token in the format: Bearer Access token'
     in: header
     name: Authorization
     type: apiKey
