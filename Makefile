@@ -1,6 +1,6 @@
 include .env
 
-POSTGRESQL_URL='postgres://$(POSTGRES_USER):${POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_DB}?sslmode=disable'
+POSTGRESQL_URL='postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST_DB}:${PORT_DB}/${POSTGRES_DB}?sslmode=disable'
 
 .DEFAULT_GOAL := help
 
