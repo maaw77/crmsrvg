@@ -15,8 +15,9 @@ func TestInitConnStringNonPath(t *testing.T) {
 }
 
 func TestInitConnStringWithPath(t *testing.T) {
-	waitConnSting := "postgres://postgres:crmpassword@localhost:5433/postgres?sslmode=disable&pool_max_conns=7"
+	waitConnSting := "postgres://postgres:crmpassword@db:5432/postgres?sslmode=disable&pool_max_conns=7"
 	currDir, err := os.Getwd()
+	t.Logf("Current dir: %s", currDir)
 	if err != nil {
 		t.Fatal(err)
 	}

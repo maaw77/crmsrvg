@@ -5,20 +5,19 @@ RUN apk update && apk add --no-cache git
 COPY . $GOPATH/src/crmsrvg/
 
 WORKDIR $GOPATH/src/crmsrvg
-RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-RUN  $GOPATH/bin/migrate -verbose -database 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST_DB}:${PORT_DB}/${POSTGRES_DB}?sslmode=disable' -path ./migrations up 
 RUN go mod tidy
 # RUN go mod download
 RUN mkdir /app
-RUN go build -o /app/crm .
+RUN go build -tags migrate -o /app/crm ./cmd/api-server/
 
 FROM alpine:latest
 
 RUN mkdir /app
 COPY --from=builder /app/crm /app/crm
-COPY --from=builder go//src/crmsrvg/docs /app/
-COPY --from=builder go//src/crmsrvg/config/config.yaml /app/config/
-
 WORKDIR /app 
-# CMD ["/app/zbot", "run"]
-CMD ["/app/crm"]
+COPY ./config/config.yaml ./config/
+COPY ./docs/swagger.* ./docs/
+COPY ./migrations/* ./migrations/
+COPY .env .
+
+CMD ["/app/crm", "-config=./config/config.yaml"]

@@ -82,5 +82,6 @@ func InitConnString(pathConfig string) (connString string) {
 		viper.GetString("db.DB"),
 		viper.GetString("db.PoolMaxConns"),
 	)
+
 	return connString
 }

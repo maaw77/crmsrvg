@@ -40,7 +40,6 @@ import (
 // Run runs the server with the specified parameters.
 func Run(pathConfig string) {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	// log.Println(pathConfig)
 
 	// Connection to the database.
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
